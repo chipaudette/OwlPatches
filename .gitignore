@@ -1,3 +1,12 @@
+
+##### Chip's ignored files
+
+# ignore backup files created by jEdit
+*.hpp~
+
+
+###########################3
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
