@@ -17,7 +17,7 @@ License: The MIT License
 
 class EmptyPatch : public Patch {
 public:
-  GainPatch(){
+  EmptyPatch(){
     registerParameter(PARAMETER_A, "");    
     registerParameter(PARAMETER_B, "");    
     registerParameter(PARAMETER_C, "");    
