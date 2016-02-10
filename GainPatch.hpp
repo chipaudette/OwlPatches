@@ -18,6 +18,7 @@
  */
 
 /* created by the OWL team 2013 */
+/* Modified by Chip Audette Feb 2016 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,17 +32,18 @@ class GainPatch : public Patch {
 public:
   GainPatch(){
     registerParameter(PARAMETER_A, "Gain");    
-    registerParameter(PARAMETER_B, "");    
+    registerParameter(PARAMETER_B, "Gain*2");    
     registerParameter(PARAMETER_C, "");    
     registerParameter(PARAMETER_D, "");    
   }
   void processAudio(AudioBuffer &buffer){
-    float gain = getParameterValue(PARAMETER_A)*2;
+    float gain = getParameterValue(PARAMETER_A);
+    float gain2 = getParameterValue(PARAMETER_B)*2'
     int size = buffer.getSize();
     for(int ch=0; ch<buffer.getChannels(); ++ch){
       float* buf = buffer.getSamples(ch);
       for(int i=0; i<size; ++i)
-	buf[i] = gain*buf[i];
+	buf[i] = gain2*gain*buf[i];
     }
   }
 };
