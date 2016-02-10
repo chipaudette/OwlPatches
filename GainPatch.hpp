@@ -32,7 +32,7 @@ class GainPatch : public Patch {
 public:
   GainPatch(){
     registerParameter(PARAMETER_A, "Gain");    
-    registerParameter(PARAMETER_B, "Gain*2");    
+    registerParameter(PARAMETER_B, "Gain2");    
     registerParameter(PARAMETER_C, "");    
     registerParameter(PARAMETER_D, "");    
   }
