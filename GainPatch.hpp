@@ -38,7 +38,7 @@ public:
   }
   void processAudio(AudioBuffer &buffer){
     float gain = getParameterValue(PARAMETER_A);
-    float gain2 = getParameterValue(PARAMETER_B)*2'
+    float gain2 = getParameterValue(PARAMETER_B)*2;
     int size = buffer.getSize();
     for(int ch=0; ch<buffer.getChannels(); ++ch){
       float* buf = buffer.getSamples(ch);
