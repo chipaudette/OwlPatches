@@ -32,8 +32,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef __ParametricEqPatch_hpp__
-#define __ParametricEqPatch_hpp__
+#ifndef __ParametricEqWithHighShelfPatch_hpp__
+#define __ParametricEqWithHighShelfPatch_hpp__
 
 
 enum filterType {
@@ -264,9 +264,9 @@ public:
 /**
  * Parametric EQ OWL Patch
  */
-class ParametricEqPatch : public Patch {
+class ParametricEqWithHighShelfPatch : public Patch {
 public:
-  ParametricEqPatch() : eqL(getSampleRate()), eqR(getSampleRate()) {
+  ParametricEqWithHighShelfPatch() : eqL(getSampleRate()), eqR(getSampleRate()) {
     registerParameter(PARAMETER_A, "PE_Freq", "PE_Freq");
     registerParameter(PARAMETER_B, "PE_Q", "PE_Q");
     registerParameter(PARAMETER_C, "PE_Gain","PE_Gain");
