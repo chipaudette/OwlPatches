@@ -18,6 +18,14 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  
  */
+ 
+ /*
+     registerParameter(PARAMETER_A, "Freq", "Freq");
+    registerParameter(PARAMETER_B, "Q", "Q");
+    registerParameter(PARAMETER_C, "");
+    registerParameter(PARAMETER_D, "Gain", "Gain");
+    registerParameter(PARAMETER_E, "FreqPedal", "FreqPedal");
+    */
 
 /* created by the OWL team 2013 */
 
@@ -129,11 +137,13 @@ private:
   Biquad1 peqR ; // PEQ filter
 
   float getFrequency() {
-    float f = getParameterValue(PARAMETER_A)+getParameterValue(PARAMETER_E)/2;
+    //float f = getParameterValue(PARAMETER_A)+getParameterValue(PARAMETER_E)/2;
     // param_A = 0    <-> f=50;
     // param_A = 1    <-> f=10050;
 //      return powf(10,3*f+1)+40;
-      return (f*8000)+50;
+//      return (f*8000)+50;
+    float f = getParameterValue(PARAMETER_A);
+    return (f*4000)+100;  //100 to 4000
   }
         
   float getQ(){
@@ -148,7 +158,8 @@ private:
     // linGain = 0    <-> -15 dB
     // linGain = 0.5  <-> 0dB
     // linGain = 1    <-> 15dB
-    return (linGain-0.5)*30;
+    //return (linGain-0.5)*30;
+    return (linGain-1.0)*30;  //-30 to 30 dB
   }
 };
 
