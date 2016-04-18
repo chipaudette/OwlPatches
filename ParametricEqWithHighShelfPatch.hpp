@@ -269,7 +269,7 @@ public:
   ParametricEqPatch() : eqL(getSampleRate()), eqR(getSampleRate()) {
     registerParameter(PARAMETER_A, "PE_Freq", "PE_Freq");
     registerParameter(PARAMETER_B, "PE_Q", "PE_Q");
-    registerParameter(PARAMETER_C, "PE_Gain","PE_Gain);
+    registerParameter(PARAMETER_C, "PE_Gain","PE_Gain");
     registerParameter(PARAMETER_D, "Treb_Gain", "Treb_Gain"); //aka "HIGH"s
     registerParameter(PARAMETER_E, "FreqPedal", "FreqPedal");
     peqL.initStateVariables();
