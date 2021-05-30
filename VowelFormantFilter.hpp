@@ -127,7 +127,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 			overall_gain = getParameterValue(PARAMETER_D);
 			
 			//float new_model = getParameterValue(PARAMETER_C);  
-			q = 0.75;
+			q = 0.80;
 			float new_model = 0.6;  //use model 3 (which is 0.5 to 0.75
 			
 			//update the formant model
@@ -149,7 +149,13 @@ class VowelFormantFilter : public SampleBasedPatch {
 			overall_gain = overall_gain * overall_gain;  //max gain will be 4 => 12 dB
 			
 			//convert the speed into an lfo increment
-			lfo_increment = lfo_speed_scale * speed_frac;
+			if (speed_frac < 0.05) {
+				//turn off the lfo
+				lfo_increment = 0.0;
+				lfo_val = 0.0;
+			} else {
+				lfo_increment = lfo_speed_scale * speed_frac;
+			}
 		}
 		
 		//choose which formant model to use
@@ -306,7 +312,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 		float q;
 		float overall_gain;
 		int model;
-		const float lfo_speed_scale = (1.0f/44100.0f)*2.0f;  //fastest
+		const float lfo_speed_scale = (1.0f/44100.0f)*4.0f;  //fastest
 		float lfo_increment = (1.0f/44100.0f)*0.5f;
 		float lfo_val = 0.0f;
 		float lfo_sign = 1.0; //switches between +1 and -1
