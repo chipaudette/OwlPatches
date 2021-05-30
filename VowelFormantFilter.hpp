@@ -291,7 +291,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 				band[ind][Iloop] = f[ind] * high + band[ind][Iloop];
 				sample_foo = band[ind][Iloop];
 			}
-			return (gain[ind]*sample_foo[ind]);
+			return (gain[ind]*sample_foo);
 		}	
 		float processSample(float sample){
 			
