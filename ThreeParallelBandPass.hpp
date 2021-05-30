@@ -117,9 +117,10 @@ public:
     q = 1 - q;
   }
   float bandpass(float sample, int ind) {
+	  
     low[ind] = low[ind] + f[ind] * band[ind];
-    float high[ind] = q * sample - low[ind] - q*band[ind];
-    band = f[ind] * high[ind] + band[ind];
+    float high = q * sample - low[ind] - q*band[ind];
+    band = f[ind] * high + band[ind];
     //return gain*low[ind];
 	return gain*band[ind];
   }	
