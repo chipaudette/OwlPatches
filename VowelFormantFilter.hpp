@@ -80,24 +80,25 @@ class VowelFormantFilter : public SampleBasedPatch {
 	public:
 		VowelFormantFilter(void) {
 			registerParameter(PARAMETER_A, "Vowel"); //will be 0.0 to 1.0
-			//registerParameter(PARAMETER_B, "Fc2"); //will be 0.0 to 1.0
+			registerParameter(PARAMETER_B, "Q"); //will be 0.0 to 1.0
 			//registerParameter(PARAMETER_C, "Fc3"); //will be 0.0 to 1.0
-			registerParameter(PARAMETER_D, "Q");
+			registerParameter(PARAMETER_D, "gain");
 
 			//initialize states
+			overal_gain = 1.0;
 			for (int i=0; i<3; i++) {
 				low[i] = 0.0;
 				band[i]=0.0;
 				f[i]=1000.0;
+				gain[i]=0.0;
 			}
 		}
 		void prepare(void){
 			float fc[3];
 			float vowel = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
-			//fc[1] = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
+			q = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
 			//fc[2] = getParameterValue(PARAMETER_C); //a value of 1.0 means fc = sample rate
-			q = getParameterValue(PARAMETER_D);
-			gain = 1.0;
+			overall_gain = getParameterValue(PARAMETER_D);
 
 			// fc = cutoff freq in Hz 
 			// fs = sampling frequency //(e.g. 44100Hz)
@@ -120,7 +121,12 @@ class VowelFormantFilter : public SampleBasedPatch {
 				f[i] = sin(M_PI * fc[i]);
 			}
 
+			//convert q into the format that the algorithm needs
 			q = 1 - q;
+			
+			//convert overall gain into logarithmic
+			overall_gain = overall_gain * 2.0;  //make the center of the dial be zero gain.  max will be G=2 => 6dB
+			overall_gain = overall_gain * overall_gain;  //max gain will be 4 => 12 dB
 		}
 		float bandpass(float sample, int ind) {
 		
@@ -134,13 +140,14 @@ class VowelFormantFilter : public SampleBasedPatch {
 			for (int i=0; i<N_bandpass; i++) {  //only do the 2 bandpass filters
 				out_val += bandpass(sample, i);
 			}
-			return out_val;
+			return max(-1.0f, min(1.0f, overall_gain * out_val));
 		}
   
   private:
 	  float low[3], band[3];
 	  float f[3], q;
 	  float gain[3];
+	  float overall_gain;
 	  
 	  #define FORMAT_MODEL 1
 	  #if (FORMANT_MODEL == 1)
