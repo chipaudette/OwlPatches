@@ -172,7 +172,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 						new_model = 4;
 					}
 				}
-			} else if (model == 4) {
+			} else if (model == 3) {
 				new_model = 3;
 				if (new_model_f < (2*cut_point - adjust)) {
 					new_model = 2;
