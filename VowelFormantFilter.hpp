@@ -77,69 +77,71 @@ public:
 };
 
 class VowelFormantFilter : public SampleBasedPatch {
-private:
-  float low[3], band[3];
-  float f[3], q;
-  float gain;
-  const int N_formants = 11;
-  float table_F1[] = {280.,	370.,	405.,	600.,	860.,	830.,	560.,	430.,	400.,	330.,	680. };
-  float table_F2[] = {2230.,	2090.,	2080.,	1930.,	1550.,	1170.,	820.,	980.,	1100.,	1260.,	1310. };
-public:
-  VowelFormantFilter() {
-    registerParameter(PARAMETER_A, "Vowel"); //will be 0.0 to 1.0
-    //registerParameter(PARAMETER_B, "Fc2"); //will be 0.0 to 1.0
-    //registerParameter(PARAMETER_C, "Fc3"); //will be 0.0 to 1.0
-    registerParameter(PARAMETER_D, "Q");
-	
-	//initialize states
-	for (int i=0; i<3; i++) {
-		low[i] = 0.0;
-		band[i]=0.0;
-		f[i]=1000.0;
-	}
-  }
-  void prepare(){
-    float fc[3];
-    flow vowel = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
-    //fc[1] = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
-    //fc[2] = getParameterValue(PARAMETER_C); //a value of 1.0 means fc = sample rate
-    q = getParameterValue(PARAMETER_D);
-    gain = 1.0;
+	public:
+		VowelFormantFilter(void) {
+			registerParameter(PARAMETER_A, "Vowel"); //will be 0.0 to 1.0
+			//registerParameter(PARAMETER_B, "Fc2"); //will be 0.0 to 1.0
+			//registerParameter(PARAMETER_C, "Fc3"); //will be 0.0 to 1.0
+			registerParameter(PARAMETER_D, "Q");
 
-    // fc = cutoff freq in Hz 
-    // fs = sampling frequency //(e.g. 44100Hz)
-    // q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
-	
-	//map vowel knob to formant frequencies
-	float frac = vowel * (N_formats-1);	
-	int ind_low = (int)(frac);
-	int ind_high = (int)ceil(frac);
-	frac = frac - ind_low;
-	fc[0] = frac*(table_F1[ind_high]-table_F1[ind_low]) + table_F1[ind_low];
-	fc[1] = frac*(table_F2[ind_high]-table_F2[ind_low]) + table_F2[ind_low];
+			//initialize states
+			for (int i=0; i<3; i++) {
+				low[i] = 0.0;
+				band[i]=0.0;
+				f[i]=1000.0;
+			}
+		}
+		void prepare(void){
+			float fc[3];
+			flow vowel = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
+			//fc[1] = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
+			//fc[2] = getParameterValue(PARAMETER_C); //a value of 1.0 means fc = sample rate
+			q = getParameterValue(PARAMETER_D);
+			gain = 1.0;
 
-	for (int i=0; i<2; i++) { //only do two formants (two bandpass filters
-		fc[i] = fc[i] / 44100.f;  //normalize by the sample rate
-		f[i] = sin(M_PI * fc[i]);
-	}
+			// fc = cutoff freq in Hz 
+			// fs = sampling frequency //(e.g. 44100Hz)
+			// q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
 
-    q = 1 - q;
-  }
-  float bandpass(float sample, int ind) {
-	  
-    low[ind] = low[ind] + f[ind] * band[ind];
-    float high = q * sample - low[ind] - q*band[ind];
-    band[ind] = f[ind] * high + band[ind];
-    //return gain*low[ind];
-	return gain*band[ind];
-  }	
-  float processSample(float sample){
-	float out_val = 0.0;
-	for (int i=0; i<2; i++) {  //only do the 2 bandpass filters
-		out_val += bandpass(sample, i);
-	}
-    return out_val;
-  }
+			//map vowel knob to formant frequencies
+			float frac = vowel * (N_formats-1);	
+			int ind_low = (int)(frac);
+			int ind_high = (int)ceil(frac);
+			frac = frac - ind_low;
+			fc[0] = frac*(table_F1[ind_high]-table_F1[ind_low]) + table_F1[ind_low];
+			fc[1] = frac*(table_F2[ind_high]-table_F2[ind_low]) + table_F2[ind_low];
+
+			for (int i=0; i<2; i++) { //only do two formants (two bandpass filters
+				fc[i] = fc[i] / 44100.f;  //normalize by the sample rate
+				f[i] = sin(M_PI * fc[i]);
+			}
+
+			q = 1 - q;
+		}
+		float bandpass(float sample, int ind) {
+		
+			low[ind] = low[ind] + f[ind] * band[ind];
+			float high = q * sample - low[ind] - q*band[ind];
+			band[ind] = f[ind] * high + band[ind];
+			//return gain*low[ind];
+			return gain*band[ind];
+		}	
+		float processSample(float sample){
+			float out_val = 0.0;
+			for (int i=0; i<2; i++) {  //only do the 2 bandpass filters
+				out_val += bandpass(sample, i);
+			}
+			return out_val;
+		}
+  
+  private:
+	  float low[3], band[3];
+	  float f[3], q;
+	  float gain;
+	  const int N_formants = 11;
+	  float table_F1[11] = {280.,	370.,	405.,	600.,	860.,	830.,	560.,	430.,	400.,	330.,	680. };
+	  float table_F2[11] = {2230.,	2090.,	2080.,	1930.,	1550.,	1170.,	820.,	980.,	1100.,	1260.,	1310. };
+
 };
 
 #endif /* __StateVariableFilterPatch_hpp__ */
