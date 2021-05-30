@@ -85,7 +85,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 			registerParameter(PARAMETER_D, "gain");
 
 			//initialize states
-			overal_gain = 1.0;
+			overall_gain = 1.0;
 			for (int i=0; i<3; i++) {
 				low[i] = 0.0;
 				band[i]=0.0;
@@ -156,7 +156,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 		  const int N_table = 11; //how long are the arrays below
 		  float table_F1[11] = {280.,	370.,	405.,	600.,	860.,	830.,	560.,	430.,	400.,	330.,	680. };
 		  float table_F2[11] = {2230.,	2090.,	2080.,	1930.,	1550.,	1170.,	820.,	980.,	1100.,	1260.,	1310. };
-		  float table_F3[11] = {0., 	0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,}
+		  float table_F3[11] = {0., 	0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,};
 		  float table_gain_F1[11] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};	  
 		  float table_gain_F2[11] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};
 		  float table_gain_F3[11] = {0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0};
