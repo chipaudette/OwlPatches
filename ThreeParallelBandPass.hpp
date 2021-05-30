@@ -29,7 +29,7 @@
 #ifndef __ThreeParallelBandPass_hpp__
 #define __ThreeParallelBandPass_hpp__
 
-#include "SampleBasedPatch.hpp"
+//include "SampleBasedPatch.hpp"
 
 /**
 State variable Filter
