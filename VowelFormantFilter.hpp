@@ -135,16 +135,21 @@ class VowelFormantFilter : public SampleBasedPatch {
 		}
 		
 		//choose which formant model to use
-		int chooseModel(int new_model) {
+		int chooseModel(int new_model_f) {
+			
+			int new_model = max(1,model); //model is negative when starting up 
+			if (model < 1) {
+				if (new_model > 0.5) new_model = 2;
+			} else if (model == 1) {
+				if (new_model_f > 0.52) new_model = 2;
+			} else {
+				if (new_model_f < 0.48) new_model = 1;
+			}
 			
 			//decide if we reset the model or not
-			if ( (model < 0) ||
-				 ((model == 1) && (new_model > 0.52)) ||
-				 ((model == 2) && (new_model < 0.48)) ) {
+			if (model != new_model) {
 					 
-				//yes, do reset the model
-				model = 1;
-				if (new_model > 0.5) model = 2;
+				model = new_model;
 				
 				switch (model) {
 					case 1:
