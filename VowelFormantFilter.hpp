@@ -127,14 +127,6 @@ class VowelFormantFilter : public SampleBasedPatch {
 			float speed_frac = getParameterValue(PARAMETER_C);
 			overall_gain = getParameterValue(PARAMETER_D);
 			
-			if (overall_gain < 0.5f) {
-				n_filters = 1;
-				overall_gain = (0.5f - overall_gain)*2.0f; //span 0.0 to 1.0
-			} else {
-				n_filters = 2;
-				overall_gain = (overall_gain - 0.5f)*2.0f; //span 0.0 to 1.0
-			}
-			
 			//float new_model = getParameterValue(PARAMETER_C);  
 			q = 0.80;
 			float new_model = 0.6;  //use model 3 (which is 0.5 to 0.75
@@ -325,7 +317,6 @@ class VowelFormantFilter : public SampleBasedPatch {
 		float lfo_increment = (1.0f/44100.0f)*0.5f;
 		float lfo_val = 0.0f;
 		float lfo_sign = 1.0; //switches between +1 and -1
-		int n_filters = 1;
 
 		  
 		#define MAX_TABLE 16
