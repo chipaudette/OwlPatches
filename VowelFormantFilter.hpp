@@ -115,7 +115,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 			_gain[2] = frac*(table_gain_F3[ind_high]-table_gain_F3[ind_low]) + table_gain_F3[ind_low];
 
 			for (int i=0; i<3; i++) { //only do two formants (two bandpass filters
-				fc[i] = fc[i] / 44100.f;  //normalize by the sample rate
+				fc[i] = fc[i] / (44100.f / 2.0f);  //normalize by the nyquist
 				_f[i] = sinf(M_PI * fc[i]);
 			}
 		}
