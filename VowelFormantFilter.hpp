@@ -135,11 +135,11 @@ class VowelFormantFilter : public SampleBasedPatch {
 		}
 		
 		//choose which formant model to use
-		int chooseModel(int new_model_f) {
+		int chooseModel(float new_model_f) {
 			
 			int new_model = max(1,model); //model is negative when starting up 
 			if (model < 1) {
-				if (new_model > 0.5) new_model = 2;
+				if (new_model_f > 0.5) new_model = 2;
 			} else if (model == 1) {
 				if (new_model_f > 0.52) new_model = 2;
 			} else {
@@ -155,15 +155,23 @@ class VowelFormantFilter : public SampleBasedPatch {
 					case 1:
 						N_bandpass = N_bandpass_1;
 						N_table = N_table_1;
-						table_F1 = table_F1_1; table_F2 = table_F2_1; table_F3 = table_F3_1;
-						table_gain_F1 = table_gain_F1_1; table_gain_F2 = table_gain_F2_1; table_gain_F3 = table_gain_F3_1;
+						table_F1 = table_F1_1; 
+						table_F2 = table_F2_1; 
+						table_F3 = table_F3_1;
+						table_gain_F1 = table_gain_F1_1; 
+						table_gain_F2 = table_gain_F2_1; 
+						table_gain_F3 = table_gain_F3_1;
 						break;
 						
 					case 2:
 						N_bandpass = N_bandpass_2;
 						N_table = N_table_2;
-						table_F1 = table_F1_2; table_F2 = table_F2_2; table_F3 = table_F3_2;
-						table_gain_F1 = table_gain_F1_2; table_gain_F2 = table_gain_F2_2; table_gain_F3 = table_gain_F3_2;
+						table_F1 = table_F1_2; 
+						table_F2 = table_F2_2; 
+						table_F3 = table_F3_2;
+						table_gain_F1 = table_gain_F1_2; 
+						table_gain_F2 = table_gain_F2_2; 
+						table_gain_F3 = table_gain_F3_2;
 						break;
 				}
 			}
