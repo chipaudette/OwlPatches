@@ -286,7 +286,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 		float bandpass(float sample, int ind) {
 			float sample_foo = sample;
 			for (int Iloop=0; Iloop < n_filters; Iloop++) { //how many times to apply the filter
-				low[ind][Iloop] = low[ind][Iloop] + f[ind] * band[ind];
+				low[ind][Iloop] = low[ind][Iloop] + f[ind] * band[ind][Iloop];
 				float high = q * sample_foo - low[ind][Iloop] - q*band[ind][Iloop];
 				band[ind][Iloop] = f[ind] * high + band[ind][Iloop];
 				sample_foo = band[ind][Iloop];
