@@ -121,8 +121,8 @@ class VowelFormantFilter : public SampleBasedPatch {
 		}
 		
 		void prepare(void){
-			float vowel1 = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
-			float vowel2 = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
+			vowel1 = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
+			vowel2 = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
 			//q = getParameterValue(PARAMETER_C); //a value of 1.0 means fc = sample rate
 			float speed_frac = getParameterValue(PARAMETER_C);
 			overall_gain = getParameterValue(PARAMETER_D);
@@ -139,8 +139,10 @@ class VowelFormantFilter : public SampleBasedPatch {
 			// q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
 
 			//map vowel knob to formant frequencies
+			#if 0
 			updateFilters(vowel1, f_start, gain_start);
 			updateFilters(vowel2, f_end, gain_end);
+			#endif
 
 			//convert q into the format that the algorithm needs
 			q = 1 - q;
@@ -290,10 +292,16 @@ class VowelFormantFilter : public SampleBasedPatch {
 			
 			//update the filter parameters
 			float frac = lfo_val;
+			#if 0
 			for (int i=0; i<3; i++) {
 				f[i] = frac*(f_end[i]-f_start[i]) + f_start[i];
 				gain[i] = frac*(gain_end[i]-gain_start[i]) + gain_start[i];
 			}
+			#else
+				float vowel = frac*(vowel2-vowel1)+vowel1;
+				updateFilters(vowel, f, gain);
+			#endif
+			
 			
 			//apply the bandpass filters
 			float out_val = 0.0; //initialize our output variable
@@ -317,6 +325,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 		float lfo_increment = (1.0f/44100.0f)*0.5f;
 		float lfo_val = 0.0f;
 		float lfo_sign = 1.0; //switches between +1 and -1
+		float vowel1, vowel2;
 
 		  
 		#define MAX_TABLE 16
