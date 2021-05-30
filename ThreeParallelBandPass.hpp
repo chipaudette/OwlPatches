@@ -74,13 +74,13 @@ public:
   }
 };
 
-class ThreeParallelBandPas : public SampleBasedPatch {
+class ThreeParallelBandPass : public SampleBasedPatch {
 private:
   float low[3], band[3];
   float f[3], q;
   float gain;
 public:
-  StateVariableFilterPatch() {
+  ThreeParallelBandPass() {
     registerParameter(PARAMETER_A, "Fc1");
     registerParameter(PARAMETER_B, "Fc2");
     registerParameter(PARAMETER_C, "Fc3");
