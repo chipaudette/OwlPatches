@@ -110,8 +110,12 @@ class VowelFormantFilter : public SampleBasedPatch {
 			frac = frac - ind_low;
 			fc[0] = frac*(table_F1[ind_high]-table_F1[ind_low]) + table_F1[ind_low];
 			fc[1] = frac*(table_F2[ind_high]-table_F2[ind_low]) + table_F2[ind_low];
+			fc[2] = frac*(table_F3[ind_high]-table_F3[ind_low]) + table_F3[ind_low];
+			gain[0] = frac*(table_gain_F1[ind_high]-table_gain_F1[ind_low]) + table_gain_F1[ind_low];
+			gain[1] = frac*(table_gain_F2[ind_high]-table_gain_F2[ind_low]) + table_gain_F2[ind_low];
+			gain[2] = frac*(table_gain_F3[ind_high]-table_gain_F3[ind_low]) + table_gain_F3[ind_low];
 
-			for (int i=0; i<2; i++) { //only do two formants (two bandpass filters
+			for (int i=0; i<3; i++) { //only do two formants (two bandpass filters
 				fc[i] = fc[i] / 44100.f;  //normalize by the sample rate
 				f[i] = sin(M_PI * fc[i]);
 			}
@@ -123,12 +127,11 @@ class VowelFormantFilter : public SampleBasedPatch {
 			low[ind] = low[ind] + f[ind] * band[ind];
 			float high = q * sample - low[ind] - q*band[ind];
 			band[ind] = f[ind] * high + band[ind];
-			//return gain*low[ind];
-			return gain*band[ind];
+			return gain[ind]*band[ind];
 		}	
 		float processSample(float sample){
 			float out_val = 0.0;
-			for (int i=0; i<2; i++) {  //only do the 2 bandpass filters
+			for (int i=0; i<N_bandpass; i++) {  //only do the 2 bandpass filters
 				out_val += bandpass(sample, i);
 			}
 			return out_val;
@@ -137,10 +140,20 @@ class VowelFormantFilter : public SampleBasedPatch {
   private:
 	  float low[3], band[3];
 	  float f[3], q;
-	  float gain;
-	  const int N_formants = 11;
-	  float table_F1[11] = {280.,	370.,	405.,	600.,	860.,	830.,	560.,	430.,	400.,	330.,	680. };
-	  float table_F2[11] = {2230.,	2090.,	2080.,	1930.,	1550.,	1170.,	820.,	980.,	1100.,	1260.,	1310. };
+	  float gain[3];
+	  
+	  #define FORMAT_MODEL 1
+	  #if (FORMANT_MODEL == 1)
+		  //Canadian english vowels https://home.cc.umanitoba.ca/~krussll/phonetics/acoustic/formants.html
+		  const int N_formants = 11;
+		  const int N_bandpass = 2;
+		  float table_F1[11] = {280.,	370.,	405.,	600.,	860.,	830.,	560.,	430.,	400.,	330.,	680. };
+		  float table_F2[11] = {2230.,	2090.,	2080.,	1930.,	1550.,	1170.,	820.,	980.,	1100.,	1260.,	1310. };
+		  float table_F3[11] = {0., 	0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,}
+		  float table_gain_F1[11] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};	  
+		  float table_gain_F2[11] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};
+		  float table_gain_F3[11] = {0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0};
+	 #endif
 
 };
 
