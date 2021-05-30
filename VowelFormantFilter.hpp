@@ -82,8 +82,8 @@ private:
   float f[3], q;
   float gain;
   const int N_formants = 11;
-  float table_F1[] = {280.	370.	405.	600.	860.	830.	560.	430.	400.	330.	680. };
-  float table_F2[] = {2230.	2090.	2080.	1930.	1550.	1170.	820.	980.	1100.	1260.	1310. };
+  float table_F1[] = {280.,	370.,	405.,	600.,	860.,	830.,	560.,	430.,	400.,	330.,	680. };
+  float table_F2[] = {2230.,	2090.,	2080.,	1930.,	1550.,	1170.,	820.,	980.,	1100.,	1260.,	1310. };
 public:
   VowelFormantFilter() {
     registerParameter(PARAMETER_A, "Vowel"); //will be 0.0 to 1.0
