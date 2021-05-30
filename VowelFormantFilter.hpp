@@ -127,7 +127,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 			
 			//float new_model = getParameterValue(PARAMETER_C);  
 			q = 0.75;
-			new_model = 0.6;  //use model 3 (which is 0.5 to 0.75
+			float new_model = 0.6;  //use model 3 (which is 0.5 to 0.75
 			
 			//update the formant model
 			chooseModel(new_model);
@@ -276,8 +276,8 @@ class VowelFormantFilter : public SampleBasedPatch {
 			
 			//update the lfo
 			lfo_val += (lfo_sign*lfo_increment);
-			if (lfo_val > (1.0f - max(0.01,1.5*lfo_increment)) lfo_sign = -lfo_sign; //flip the direction
-			if (lfo_val < (0.0 + max(0.01,1.5*lfo_increment))) lfo_sign = -lfo_sign; //flip the direction
+			if (lfo_val > (1.0f - max(0.01f,1.5f*lfo_increment))) lfo_sign = -lfo_sign; //flip the direction
+			if (lfo_val < (0.0f + max(0.01f,1.5f*lfo_increment))) lfo_sign = -lfo_sign; //flip the direction
 			lfo_val = max(0.0,min(1.0,lfo_val)); //limit the value
 			
 			//update the filter parameters
