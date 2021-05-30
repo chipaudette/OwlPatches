@@ -150,14 +150,14 @@ class VowelFormantFilter : public SampleBasedPatch {
 					case 1:
 						N_bandpass = N_bandpass_1;
 						N_table = N_table_1;
-						table_F1 = table_F1_1; table_F2 = table_F2_1; table F3 = table_F3_1;
+						table_F1 = table_F1_1; table_F2 = table_F2_1; table_F3 = table_F3_1;
 						table_gain_F1 = table_gain_F1_1; table_F2 = table_gain_F2_1; table F3 = table_gain_F3_1;
 						break;
 						
 					case 2:
 						N_bandpass = N_bandpass_2;
 						N_table = N_table_2;
-						table_F1 = table_F1_2; table_F2 = table_F2_2; table F3 = table_F3_2;
+						table_F1 = table_F1_2; table_F2 = table_F2_2; table_F3 = table_F3_2;
 						table_gain_F1 = table_gain_F1_2; table_F2 = table_gain_F2_2; table F3 = table_gain_F3_2;
 						break;
 				}
@@ -191,7 +191,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 		#define MAX_TABLE 16
 		int N_bandpass, N_table;
 		float *table_F1, *table_F2, *table_F3;
-		float *table_gain_F1, *table_gain_F2, *table_gain_F2;
+		float *table_gain_F1, *table_gain_F2, *table_gain_F3;
 
 		//Canadian english vowels https://home.cc.umanitoba.ca/~krussll/phonetics/acoustic/formants.html
 		const int N_bandpass_1 = 2; //how many bandpass filters to use
