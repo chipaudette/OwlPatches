@@ -108,6 +108,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 			fc[0] = frac*(table_F1[ind_high]-table_F1[ind_low]) + table_F1[ind_low];
 			fc[1] = frac*(table_F2[ind_high]-table_F2[ind_low]) + table_F2[ind_low];
 			fc[2] = frac*(table_F3[ind_high]-table_F3[ind_low]) + table_F3[ind_low];
+			
 			_gain[0] = frac*(table_gain_F1[ind_high]-table_gain_F1[ind_low]) + table_gain_F1[ind_low];
 			_gain[1] = frac*(table_gain_F2[ind_high]-table_gain_F2[ind_low]) + table_gain_F2[ind_low];
 			_gain[2] = frac*(table_gain_F3[ind_high]-table_gain_F3[ind_low]) + table_gain_F3[ind_low];
@@ -276,8 +277,8 @@ class VowelFormantFilter : public SampleBasedPatch {
 			
 			//update the lfo
 			lfo_val += (lfo_sign*lfo_increment);
-			if (lfo_val > (1.0f - max(0.01f,1.5f*lfo_increment))) lfo_sign = -lfo_sign; //flip the direction
-			if (lfo_val < (0.0f + max(0.01f,1.5f*lfo_increment))) lfo_sign = -lfo_sign; //flip the direction
+			if ((lfo_sign > 0.1)  && (lfo_val > (1.0f - max(0.01f,1.5f*lfo_increment)))) lfo_sign = -lfo_sign; //flip the direction
+			if ((lfo_sign < -0.1) && (lfo_val < (0.0f + max(0.01f,1.5f*lfo_increment)))) lfo_sign = -lfo_sign; //flip the direction
 			lfo_val = max(0.0,min(1.0,lfo_val)); //limit the value
 			
 			//update the filter parameters
@@ -289,7 +290,9 @@ class VowelFormantFilter : public SampleBasedPatch {
 			
 			//apply the bandpass filters
 			float out_val = 0.0; //initialize our output variable
-			for (int i=0; i<N_bandpass; i++) out_val += bandpass(sample, i); //compute each bandpass filter in parallel and sum
+			for (int i=0; i<N_bandpass; i++) {
+				out_val += bandpass(sample, i); //compute each bandpass filter in parallel and sum
+			}
 			out_val *= overall_gain; //apply overall gain
 			out_val = max(-1.0f, min(1.0f, out_val));  //saturate whenever the amplitude is too large
 			return out_val;
