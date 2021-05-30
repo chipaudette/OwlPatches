@@ -20,13 +20,14 @@
  */
 
 
-/* created by the OWL team 2013 */
+/* Original "StateVariableFilterPatch" created by the OWL team 2013 */
+/* Adapted by Chip Audette to "ThreeParallelBandPass" 2021 */
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __StateVariableFilterPatch_hpp__
-#define __StateVariableFilterPatch_hpp__
+#ifndef __ThreeParallelBandPass_hpp__
+#define __ThreeParallelBandPass_hpp__
 
 #include "SampleBasedPatch.hpp"
 
@@ -59,36 +60,75 @@ notch = high + low;
 //--endloop
 */
 
+class SampleBasedPatch : public Patch {
+public:
+  virtual void prepare() = 0;
+  virtual float processSample(float sample) = 0;
+  void processAudio(AudioBuffer &buffer){
+    prepare();
+    int size = buffer.getSize();
+    float* samples = buffer.getSamples(0); // This Class is Mono (1in, 1out)
+      for(int i=0; i<size; ++i){
+          samples[i] = processSample(samples[i]);
+      }
+  }
+};
 
 class StateVariableFilterPatch : public SampleBasedPatch {
 private:
-  float low, band;
-  float f, q;
+  float low[3], band[3];
+  float f[3], q;
   float gain;
 public:
-  StateVariableFilterPatch() : low(0), band(0) {
-    registerParameter(PARAMETER_A, "Fc");
-    registerParameter(PARAMETER_B, "Q");
-    registerParameter(PARAMETER_C, "");
-    registerParameter(PARAMETER_D, "Gain");
+  StateVariableFilterPatch() {
+    registerParameter(PARAMETER_A, "Fc1");
+    registerParameter(PARAMETER_B, "Fc2");
+    registerParameter(PARAMETER_C, "Fc3");
+    registerParameter(PARAMETER_D, "Q");
+    //registerParameter(PARAMETER_B, "Q");
+    //registerParameter(PARAMETER_C, "");
+    //registerParameter(PARAMETER_D, "Gain");
+	
+	//initialize states
+	for (int i=0; i<3; i++) {
+		low[i] = 0.0;
+		band[i]=0.0;
+		f[i]=1000.0;
+	}
   }
   void prepare(){
-    float fc;
-    fc = getParameterValue(PARAMETER_A);
-    q = getParameterValue(PARAMETER_B);
-    gain = getParameterValue(PARAMETER_D); // get gain value
-    fc /= 2;
-    f = sin(M_PI * fc);
-    q = 1 - q;
+    float fc[3];
+    fc[0] = getParameterValue(PARAMETER_A);
+    fc[1] = getParameterValue(PARAMETER_B);
+    fc[2] = getParameterValue(PARAMETER_C);
+    q = getParameterValue(PARAMETER_D);
+    //gain = getParameterValue(PARAMETER_D); // get gain value
+    gain = 1.0;
+
     // fc = cutoff freq in Hz
     // fs = sampling frequency //(e.g. 44100Hz)
     // q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
+
+	for (int i=0; i<3; i++) {
+		fc[i] /= 2;
+		f[i] = sin(M_PI * fc[i]);
+	}
+
+    q = 1 - q;
   }
+  float bandpass(float sample, int ind) {
+    low[ind] = low[ind] + f[ind] * band[ind];
+    float high[ind] = q * sample - low[ind] - q*band[ind];
+    band = f[ind] * high[ind] + band[ind];
+    //return gain*low[ind];
+	return gain*band[ind];
+  }	
   float processSample(float sample){
-    low = low + f * band;
-    float high = q * sample - low - q*band;
-    band = f * high + band;
-    return gain*low;
+	float out_val = 0.0;
+	for (int i=0; i<3; i++) {
+		out_val += bandpass(sample, i);
+	}
+    return out_val;
   }
 };
 
