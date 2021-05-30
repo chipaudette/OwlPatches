@@ -74,7 +74,7 @@ public:
   }
 };
 
-class StateVariableFilterPatch : public SampleBasedPatch {
+class ThreeParallelBandPas : public SampleBasedPatch {
 private:
   float low[3], band[3];
   float f[3], q;
@@ -120,7 +120,7 @@ public:
 	  
     low[ind] = low[ind] + f[ind] * band[ind];
     float high = q * sample - low[ind] - q*band[ind];
-    band = f[ind] * high + band[ind];
+    band[ind] = f[ind] * high + band[ind];
     //return gain*low[ind];
 	return gain*band[ind];
   }	
