@@ -93,7 +93,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 		}
 		void prepare(void){
 			float fc[3];
-			flow vowel = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
+			float vowel = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
 			//fc[1] = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
 			//fc[2] = getParameterValue(PARAMETER_C); //a value of 1.0 means fc = sample rate
 			q = getParameterValue(PARAMETER_D);
@@ -104,7 +104,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 			// q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
 
 			//map vowel knob to formant frequencies
-			float frac = vowel * (N_formats-1);	
+			float frac = vowel * (N_formants-1);	
 			int ind_low = (int)(frac);
 			int ind_high = (int)ceil(frac);
 			frac = frac - ind_low;
