@@ -81,13 +81,10 @@ private:
   float gain;
 public:
   ThreeParallelBandPass() {
-    registerParameter(PARAMETER_A, "Fc1");
-    registerParameter(PARAMETER_B, "Fc2");
-    registerParameter(PARAMETER_C, "Fc3");
+    registerParameter(PARAMETER_A, "Fc1"); //will be 0.0 to 1.0
+    registerParameter(PARAMETER_B, "Fc2"); //will be 0.0 to 1.0
+    registerParameter(PARAMETER_C, "Fc3"); //will be 0.0 to 1.0
     registerParameter(PARAMETER_D, "Q");
-    //registerParameter(PARAMETER_B, "Q");
-    //registerParameter(PARAMETER_C, "");
-    //registerParameter(PARAMETER_D, "Gain");
 	
 	//initialize states
 	for (int i=0; i<3; i++) {
@@ -98,19 +95,26 @@ public:
   }
   void prepare(){
     float fc[3];
-    fc[0] = getParameterValue(PARAMETER_A);
-    fc[1] = getParameterValue(PARAMETER_B);
-    fc[2] = getParameterValue(PARAMETER_C);
+    fc[0] = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
+    fc[1] = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
+    fc[2] = getParameterValue(PARAMETER_C); //a value of 1.0 means fc = sample rate
     q = getParameterValue(PARAMETER_D);
-    //gain = getParameterValue(PARAMETER_D); // get gain value
     gain = 1.0;
 
-    // fc = cutoff freq in Hz
+
+
+    // fc = cutoff freq in Hz 
     // fs = sampling frequency //(e.g. 44100Hz)
     // q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
+	
+	float low = 50.0f / 44100.0f; 		//assumed sample rate is 44100 Hz
+	float high = 10000.0f / 44100.0f;	//assumed sample rate is 44100 Hz
+	float logScaleFac = logf(high / low);
 
 	for (int i=0; i<3; i++) {
-		fc[i] /= 2;
+		//map 0.0 to 1.0 to be logarithmic between given low and high frequencies
+		fc[i] = low * expf(logScaleFac * fc[i]);
+		
 		f[i] = sin(M_PI * fc[i]);
 	}
 
