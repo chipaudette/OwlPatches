@@ -88,10 +88,9 @@ class VowelFormantFilter : public SampleBasedPatch {
 			overall_gain = 1.0;
 			model = -1;
 			for (int i=0; i<3; i++) {
-				for (int j=0; j<2; j++) {
-					low[i][j] = 0.0;
-					band[i][j]=0.0;
-				}
+				low[i] = 0.0;
+				band[i]=0.0;
+				
 				f[i]=1000.0;
 				gain[i]=0.0;
 				f_start[i]=0.0;
@@ -284,14 +283,10 @@ class VowelFormantFilter : public SampleBasedPatch {
 		}
 		
 		float bandpass(float sample, int ind) {
-			float sample_foo = sample;
-			for (int Iloop=0; Iloop < n_filters; Iloop++) { //how many times to apply the filter
-				low[ind][Iloop] = low[ind][Iloop] + f[ind] * band[ind][Iloop];
-				float high = q * sample_foo - low[ind][Iloop] - q*band[ind][Iloop];
-				band[ind][Iloop] = f[ind] * high + band[ind][Iloop];
-				sample_foo = band[ind][Iloop];
-			}
-			return (gain[ind]*sample_foo);
+			low[ind] = low[ind] + f[ind] * band[ind];
+			float high = q * sample- low[ind]- q*band[ind];
+			band[ind] = f[ind] * high + band[ind];
+			return (gain[ind]*band[ind]);
 		}	
 		float processSample(float sample){
 			
@@ -319,7 +314,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 		}
   
   private:
-		float low[3][2], band[3][2];
+		float low[3], band[3];
 		float f_start[3], gain_start[3]; //filter parameters #1
 		float f_end[3], gain_end[3];
 		float f[3], gain[3];
