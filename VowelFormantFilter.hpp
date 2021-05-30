@@ -105,7 +105,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 			// q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
 
 			//map vowel knob to formant frequencies
-			float frac = vowel * (N_formants-1);	
+			float frac = vowel * (N_table-1);	
 			int ind_low = (int)(frac);
 			int ind_high = (int)ceil(frac);
 			frac = frac - ind_low;
@@ -149,11 +149,11 @@ class VowelFormantFilter : public SampleBasedPatch {
 	  float gain[3];
 	  float overall_gain;
 	  
-	  #define FORMAT_MODEL 1
+	  #define FORMANT_MODEL 1
 	  #if (FORMANT_MODEL == 1)
 		  //Canadian english vowels https://home.cc.umanitoba.ca/~krussll/phonetics/acoustic/formants.html
-		  const int N_formants = 11;
-		  const int N_bandpass = 2;
+		  const int N_bandpass = 2; //how many bandpass filters to use
+		  const int N_table = 11; //how long are the arrays below
 		  float table_F1[11] = {280.,	370.,	405.,	600.,	860.,	830.,	560.,	430.,	400.,	330.,	680. };
 		  float table_F2[11] = {2230.,	2090.,	2080.,	1930.,	1550.,	1170.,	820.,	980.,	1100.,	1260.,	1310. };
 		  float table_F3[11] = {0., 	0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,		0.,}
