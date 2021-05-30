@@ -138,12 +138,61 @@ class VowelFormantFilter : public SampleBasedPatch {
 		int chooseModel(float new_model_f) {
 			
 			int new_model = max(1,model); //model is negative when starting up 
+			float cut_point = 1.0/4.0;
+			float adjust = 0.02;
 			if (model < 1) {
-				if (new_model_f > 0.5) new_model = 2;
+				new_model = 1;
+				if (new_model_f > cut_point) {
+					new_model = 2;
+					if (new_model_f > 2*cut_point) {
+						new_model = 3;
+						if (new_model_f > 3*cut_point) {
+							new_model = 4;
+						}
+					}
+				}
 			} else if (model == 1) {
-				if (new_model_f > 0.52) new_model = 2;
+				new_model = 1;
+				if (new_model_f > (cut_point+adjust)) {
+					new_model = 2;
+					if (new_model_f > (2*cut_point+adjust)) {
+						new_model = 3;
+						if (new_model_f > (3*cut_point+adjust)) {
+							new_model = 4;
+						}
+					}
+				}	
+			} else if (model == 2) {
+				new_model = 2;
+				if (new_model_f < (cut_point-adjust)) {
+					new_model = 1;
+				} else if (new_model_f > (2*cut_point+adjust)) {
+					new_model = 3;
+					if (new_model_f > (3*cut_point + adjust)) {
+						new_model = 4;
+					}
+				}
+			} else if (model == 4) {
+				new_model = 3;
+				if (new_model_f < (2*cut_point - adjust)) {
+					new_model = 2;
+					if (new_model_f < (cut_point - adjust)) {
+						new_model = 1;
+					}
+				} else if (new_model_f > (3*cut_point + adjust)) {
+					new_model = 4;
+				}
 			} else {
-				if (new_model_f < 0.48) new_model = 1;
+				new_model = 3;
+				if (new_model_f < (3*cut_point - adjust)) {
+					new_model = 3;
+					if (new_model_f < (2*cut_point - adjust)) {
+						new_model = 2;
+						if (new_model_f < (cut_point - adjust)) {
+							new_model = 1;
+						}
+					}
+				}
 			}
 			
 			//decide if we reset the model or not
@@ -173,13 +222,34 @@ class VowelFormantFilter : public SampleBasedPatch {
 						table_gain_F2 = table_gain_F2_2; 
 						table_gain_F3 = table_gain_F3_2;
 						break;
+
+					case 3:
+						N_bandpass = N_bandpass_3;
+						N_table = N_table_3;
+						table_F1 = table_F1_3; 
+						table_F2 = table_F2_3; 
+						table_F3 = table_F3_3;
+						table_gain_F1 = table_gain_F1_3; 
+						table_gain_F2 = table_gain_F2_3; 
+						table_gain_F3 = table_gain_F3_3;
+						break;
+
+					case 4:
+						N_bandpass = N_bandpass_4;
+						N_table = N_table_4;
+						table_F1 = table_F1_4; 
+						table_F2 = table_F2_4; 
+						table_F3 = table_F3_4;
+						table_gain_F1 = table_gain_F1_4; 
+						table_gain_F2 = table_gain_F2_4; 
+						table_gain_F3 = table_gain_F3_4;
+						break;
 				}
 			}
 			return model;
 		}
 		
 		float bandpass(float sample, int ind) {
-		
 			low[ind] = low[ind] + f[ind] * band[ind];
 			float high = q * sample - low[ind] - q*band[ind];
 			band[ind] = f[ind] * high + band[ind];
@@ -225,6 +295,29 @@ class VowelFormantFilter : public SampleBasedPatch {
 		float table_gain_F1_2[MAX_TABLE] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};	  
 		float table_gain_F2_2[MAX_TABLE] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};
 		float table_gain_F3_2[MAX_TABLE] = {0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0,	0.0};		 
+
+		//https://engineering.purdue.edu/~ee649/notes/figures/formant_chart.gif
+		//no gain adjustment
+		const int N_bandpass_3 = 3; //how many bandpass filters to use
+		const int N_table_3 = 10; //how long are the arrays below
+		float table_F1_3[MAX_TABLE] = {270.0,	390.0,	530.0,	660.0,	660.0,	670.0,	440.0,	300.0,	640.0,	490.0};
+		float table_F2_3[MAX_TABLE] = {2290.0,	1990.0,	1840.0,	1720.0,	1090.0,	840.0,	1020.0,	870.0,	1190.0,	1350.0};
+		float table_F3_3[MAX_TABLE] = {3010.0,	2250.0, 2480.0,	2410.0,	2440.0,	2410.0,	2240.0,	2240.0,	2390.0,	1590.0};
+		float table_gain_F1_3[MAX_TABLE] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};	  
+		float table_gain_F2_3[MAX_TABLE] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};
+		float table_gain_F3_3[MAX_TABLE] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};		 
+
+		//https://engineering.purdue.edu/~ee649/notes/figures/formant_chart.gif
+		//with gain adjustment
+		const int N_bandpass_4 = 3; //how many bandpass filters to use
+		const int N_table_4 = 10; //how long are the arrays below
+		float table_F1_4[MAX_TABLE] = {270.0,	390.0,	530.0,	660.0,	660.0,	670.0,	440.0,	300.0,	640.0,	490.0};
+		float table_F2_4[MAX_TABLE] = {2290.0,	1990.0,	1840.0,	1720.0,	1090.0,	840.0,	1020.0,	870.0,	1190.0,	1350.0};
+		float table_F3_4[MAX_TABLE] = {3010.0,	2250.0, 2480.0,	2410.0,	2440.0,	2410.0,	2240.0,	2240.0,	2390.0,	1590.0};
+		float table_gain_F1_4[MAX_TABLE] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};	  
+		float table_gain_F2_4[MAX_TABLE] = {0.100,	0.100,	0.158,	0.282,	0.631,	0.447,	0.282,	0.158,	1.000,	1.000};
+		float table_gain_F3_4[MAX_TABLE] = {0.079,	0.063,	0.079,	0.100,	0.045,	0.020,	0.022,	0.010,	0.050,	0.178};		 
+
 	
 };
 
