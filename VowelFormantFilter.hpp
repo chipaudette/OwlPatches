@@ -100,7 +100,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 			q = 1 - q;
 			
 			//convert overall gain into logarithmic
-			overall_gain = overall_gain * 2.0;  //make the center of the dial be zero gain.  max will be G=3 => 10dB
+			overall_gain = overall_gain * 3.0;  //make the center of the dial be zero gain.  max will be G=3 => 10dB
 			overall_gain = overall_gain * overall_gain;  //max gain will be 9 => 20 dB
 
 		}
