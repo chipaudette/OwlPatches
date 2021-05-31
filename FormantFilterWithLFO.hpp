@@ -105,7 +105,7 @@ class FormantFilterWithLFO : public SampleBasedPatch {
 			//chooseModel(3);  //this code has four models to choose from?
 
 			//convert q into the format that the algorithm needs
-			q = 0.80;
+			q = 0.75;
 			q = 1 - q;
 			
 			//convert the speed into an lfo increment
