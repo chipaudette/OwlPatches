@@ -100,8 +100,8 @@ class VowelFormantFilter : public SampleBasedPatch {
 			q = 1 - q;
 			
 			//convert overall gain into logarithmic
-			overall_gain = overall_gain * 2.0;  //make the center of the dial be zero gain.  max will be G=2 => 6dB
-			overall_gain = overall_gain * overall_gain;  //max gain will be 4 => 12 dB
+			overall_gain = overall_gain * 2.0;  //make the center of the dial be zero gain.  max will be G=3 => 10dB
+			overall_gain = overall_gain * overall_gain;  //max gain will be 9 => 20 dB
 
 		}
 		
@@ -277,7 +277,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 		float table_F3_3[MAX_TABLE] = {3010.0,	2250.0, 2480.0,	2410.0,	2440.0,	2410.0,	2240.0,	2240.0,	2390.0,	1590.0};
 		float table_gain_F1_3[MAX_TABLE] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};	  
 		float table_gain_F2_3[MAX_TABLE] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};
-		float table_gain_F3_3[MAX_TABLE] = {1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};		 
+		float table_gain_F3_3[MAX_TABLE] = {0.5,	0.5,	0.5,	0.5,	0.5,	0.5,	0.5,	0.5,	0.5,	0.5};		 
 
 		//https://engineering.purdue.edu/~ee649/notes/figures/formant_chart.gif
 		//with gain adjustment
