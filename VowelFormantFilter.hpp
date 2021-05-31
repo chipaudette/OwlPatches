@@ -1,7 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/* Original "StateVariableFilterPatch" created by the OWL team 2013 */
+/* Adapted by Chip Audette to "ThreeParallelBandPass" 2021 */
+/* Adapted by Chip Audette to "VowelFormantFilter" 2021 */
+
+
 /*
- 
  
  LICENSE:
  This program is free software: you can redistribute it and/or modify
@@ -19,48 +23,12 @@
  
  */
 
-
-/* Original "StateVariableFilterPatch" created by the OWL team 2013 */
-/* Adapted by Chip Audette to "ThreeParallelBandPass" 2021 */
-/* Adapted by Chip Audette to "VowelFormantFilter" 2021 */
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __VowelFormantFilter_hpp__
 #define __VowelFormantFilter_hpp__
 
 
-/**
-
-Built from parallel bandpass filters
-
-Bandpass filters are built from State variable Filter:
-http://musicdsp.org/showArchiveComment.php?ArchiveID=23
-Type : 12db resonant low, high or bandpass
-References : Effect Deisgn Part 1, Jon Dattorro, J. Audio Eng. Soc., Vol 45, No. 9, 1997 September
-
-Notes : 
-Digital approximation of Chamberlin two-pole low pass. Easy to calculate coefficients, easy to process algorithm.
-
-Code : 
-cutoff = cutoff freq in Hz
-fs = sampling frequency //(e.g. 44100Hz)
-f = 2 sin (pi * cutoff / fs) //[approximately]
-q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
-low = lowpass output
-high = highpass output
-band = bandpass output
-notch = notch output
-scale = q
-low=high=band=0;
-//--beginloop
-low = low + f * band;
-high = scale * input - low - q*band;
-band = f * high + band;
-notch = high + low;
-//--endloop
-*/
 
 class SampleBasedPatch : public Patch {
 public:
@@ -70,19 +38,19 @@ public:
     prepare();
     int size = buffer.getSize();
     float* samples = buffer.getSamples(0); // This Class is Mono (1in, 1out)
-      for(int i=0; i<size; ++i){
-          samples[i] = processSample(samples[i]);
-      }
+		for(int i=0; i<size; ++i){
+			samples[i] = processSample(samples[i]);
+		}
   }
 };
 
 class VowelFormantFilter : public SampleBasedPatch {
 	public:
 		VowelFormantFilter(void) {
-			registerParameter(PARAMETER_A, "Vowel1"); //will be 0.0 to 1.0
-			registerParameter(PARAMETER_B, "Vowel2"); //will be 0.0 to 1.0
-			registerParameter(PARAMETER_C, "Speed"); //will be 0.0 to 1.0
-			registerParameter(PARAMETER_D, "gain");
+			registerParameter(PARAMETER_A, "Vowel"); //will be 0.0 to 1.0
+			registerParameter(PARAMETER_B, "Q"); //will be 0.0 to 1.0
+			registerParameter(PARAMETER_C, "Model"); //will be 0.0 to 1.0
+			registerParameter(PARAMETER_D, "Gain");
 
 			//initialize states
 			overall_gain = 1.0;
@@ -93,15 +61,24 @@ class VowelFormantFilter : public SampleBasedPatch {
 				
 				f[i]=1000.0;
 				gain[i]=0.0;
-				f_start[i]=0.0;
-				gain_start[i]=0.0;
-				f_end[i]=0.0;
-				gain_end[i]=0.0;
 			}
 		}
-		void updateFilters(float vowel, float *_f, float *_gain) {
+		void prepare(void){
 			float fc[3];
+			float vowel = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
+			q = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
+			float new_model = getParameterValue(PARAMETER_C);  
+			overall_gain = getParameterValue(PARAMETER_D);
 			
+			//update the formant model
+			chooseModel(new_model);
+			
+
+			// fc = cutoff freq in Hz 
+			// fs = sampling frequency //(e.g. 44100Hz)
+			// q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
+
+			//map vowel knob to formant frequencies
 			float frac = vowel * (N_table-1);	
 			int ind_low = (int)(frac);
 			int ind_high = (int)ceil(frac);
@@ -109,40 +86,15 @@ class VowelFormantFilter : public SampleBasedPatch {
 			fc[0] = frac*(table_F1[ind_high]-table_F1[ind_low]) + table_F1[ind_low];
 			fc[1] = frac*(table_F2[ind_high]-table_F2[ind_low]) + table_F2[ind_low];
 			fc[2] = frac*(table_F3[ind_high]-table_F3[ind_low]) + table_F3[ind_low];
-			
-			_gain[0] = frac*(table_gain_F1[ind_high]-table_gain_F1[ind_low]) + table_gain_F1[ind_low];
-			_gain[1] = frac*(table_gain_F2[ind_high]-table_gain_F2[ind_low]) + table_gain_F2[ind_low];
-			_gain[2] = frac*(table_gain_F3[ind_high]-table_gain_F3[ind_low]) + table_gain_F3[ind_low];
+
+			gain[0] = frac*(table_gain_F1[ind_high]-table_gain_F1[ind_low]) + table_gain_F1[ind_low];
+			gain[1] = frac*(table_gain_F2[ind_high]-table_gain_F2[ind_low]) + table_gain_F2[ind_low];
+			gain[2] = frac*(table_gain_F3[ind_high]-table_gain_F3[ind_low]) + table_gain_F3[ind_low];
 
 			for (int i=0; i<3; i++) { //only do two formants (two bandpass filters
-				fc[i] = fc[i] / (44100.f / 2.0f);  //normalize by the nyquist
-				_f[i] = sinf(M_PI * fc[i]);
+				fc[i] = fc[i] / (44100.f / 2.0f);  //normalize by the nyquist rate (not the sample ratE)
+				f[i] = sin(M_PI * fc[i]);
 			}
-		}
-		
-		void prepare(void){
-			vowel1 = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
-			vowel2 = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
-			//q = getParameterValue(PARAMETER_C); //a value of 1.0 means fc = sample rate
-			float speed_frac = getParameterValue(PARAMETER_C);
-			overall_gain = getParameterValue(PARAMETER_D);
-			
-			//float new_model = getParameterValue(PARAMETER_C);  
-			q = 0.80;
-			float new_model = 0.6;  //use model 3 (which is 0.5 to 0.75
-			
-			//update the formant model
-			chooseModel(new_model);
-			
-			// fc = cutoff freq in Hz 
-			// fs = sampling frequency //(e.g. 44100Hz)
-			// q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
-
-			//map vowel knob to formant frequencies
-			#if 0
-			updateFilters(vowel1, f_start, gain_start);
-			updateFilters(vowel2, f_end, gain_end);
-			#endif
 
 			//convert q into the format that the algorithm needs
 			q = 1 - q;
@@ -150,15 +102,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 			//convert overall gain into logarithmic
 			overall_gain = overall_gain * 2.0;  //make the center of the dial be zero gain.  max will be G=2 => 6dB
 			overall_gain = overall_gain * overall_gain;  //max gain will be 4 => 12 dB
-			
-			//convert the speed into an lfo increment
-			if (speed_frac < 0.05) {
-				//turn off the lfo
-				lfo_increment = 0.0;
-				lfo_val = 0.0;
-			} else {
-				lfo_increment = lfo_speed_scale * speed_frac;
-			}
+
 		}
 		
 		//choose which formant model to use
@@ -210,7 +154,7 @@ class VowelFormantFilter : public SampleBasedPatch {
 					new_model = 4;
 				}
 			} else {
-				new_model = 3;
+				new_model = 4;
 				if (new_model_f < (3*cut_point - adjust)) {
 					new_model = 3;
 					if (new_model_f < (2*cut_point - adjust)) {
@@ -280,54 +224,25 @@ class VowelFormantFilter : public SampleBasedPatch {
 			low[ind] = low[ind] + f[ind] * band[ind];
 			float high = q * sample- low[ind]- q*band[ind];
 			band[ind] = f[ind] * high + band[ind];
-			return (gain[ind]*band[ind]);
+			return gain[ind]*band[ind];
 		}	
 		float processSample(float sample){
-			
-			//update the lfo
-			lfo_val += (lfo_sign*lfo_increment);
-			if ((lfo_sign > 0.1)  && (lfo_val > (1.0f - max(0.01f,1.5f*lfo_increment)))) lfo_sign = -lfo_sign; //flip the direction
-			if ((lfo_sign < -0.1) && (lfo_val < (0.0f + max(0.01f,1.5f*lfo_increment)))) lfo_sign = -lfo_sign; //flip the direction
-			lfo_val = max(0.0,min(1.0,lfo_val)); //limit the value
-			
-			//update the filter parameters
-			float frac = lfo_val;
-			#if 0
-			for (int i=0; i<3; i++) {
-				f[i] = frac*(f_end[i]-f_start[i]) + f_start[i];
-				gain[i] = frac*(gain_end[i]-gain_start[i]) + gain_start[i];
+
+			float out_val = 0.0;
+			for (int i=0; i<N_bandpass; i++) {  //only do the 2 bandpass filters
+				out_val += bandpass(sample, i);
 			}
-			#else
-				float vowel = frac*(vowel2-vowel1)+vowel1;
-				updateFilters(vowel, f, gain);
-			#endif
-			
-			
-			//apply the bandpass filters
-			float out_val = 0.0; //initialize our output variable
-			for (int i=0; i<N_bandpass; i++) {
-				out_val += bandpass(sample, i); //compute each bandpass filter in parallel and sum
-			}
-			out_val *= overall_gain; //apply overall gain
-			out_val = max(-1.0f, min(1.0f, out_val));  //saturate whenever the amplitude is too large
-			return out_val;
+			return max(-1.0f, min(1.0f, overall_gain * out_val));
+
 		}
   
   private:
 		float low[3], band[3];
-		float f_start[3], gain_start[3]; //filter parameters #1
-		float f_end[3], gain_end[3];
-		float f[3], gain[3];
-		float q;
+		float f[3], q;
+		float gain[3];
 		float overall_gain;
 		int model;
-		const float lfo_speed_scale = (1.0f/44100.0f)*4.0f;  //fastest
-		float lfo_increment = (1.0f/44100.0f)*0.5f;
-		float lfo_val = 0.0f;
-		float lfo_sign = 1.0; //switches between +1 and -1
-		float vowel1, vowel2;
-
-		  
+	  
 		#define MAX_TABLE 16
 		int N_bandpass, N_table;
 		float *table_F1, *table_F2, *table_F3;
@@ -372,14 +287,45 @@ class VowelFormantFilter : public SampleBasedPatch {
 		float table_F2_4[MAX_TABLE] = {2290.0,	1990.0,	1840.0,	1720.0,	1090.0,	840.0,	1020.0,	870.0,	1190.0,	1350.0};
 		float table_F3_4[MAX_TABLE] = {3010.0,	2250.0, 2480.0,	2410.0,	2440.0,	2410.0,	2240.0,	2240.0,	2390.0,	1590.0};
 		float table_gain_F1_4[MAX_TABLE] = {1.0, 	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0,	1.0};	  
-		float table_gain_F2_4[MAX_TABLE] = {0.100,	0.100,	0.158,	0.282,	0.631,	0.447,	0.282,	0.158,	1.0,	0.316,	0.316};
+		float table_gain_F2_4[MAX_TABLE] = {0.100,	0.100,	0.158,	0.282,	0.631,	0.447,	0.282,	0.158,	1.000,	0.316,	0.316};
 		float table_gain_F3_4[MAX_TABLE] = {0.079,	0.063,	0.079,	0.100,	0.045,	0.020,	0.022,	0.010,	0.050,	0.178,	0.178};		 
-
 	
 };
 
-#endif /* __StateVariableFilterPatch_hpp__ */
+#endif /* __VowelFormantFilter_hpp__ */
 
+
+
+/**
+
+Built from parallel bandpass filters
+
+Bandpass filters are built from State variable Filter:
+http://musicdsp.org/showArchiveComment.php?ArchiveID=23
+Type : 12db resonant low, high or bandpass
+References : Effect Deisgn Part 1, Jon Dattorro, J. Audio Eng. Soc., Vol 45, No. 9, 1997 September
+
+Notes : 
+Digital approximation of Chamberlin two-pole low pass. Easy to calculate coefficients, easy to process algorithm.
+
+Code : 
+cutoff = cutoff freq in Hz
+fs = sampling frequency //(e.g. 44100Hz)
+f = 2 sin (pi * cutoff / fs) //[approximately]
+q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
+low = lowpass output
+high = highpass output
+band = bandpass output
+notch = notch output
+scale = q
+low=high=band=0;
+//--beginloop
+low = low + f * band;
+high = scale * input - low - q*band;
+band = f * high + band;
+notch = high + low;
+//--endloop
+*/
 
 /* Formant Tables
 
