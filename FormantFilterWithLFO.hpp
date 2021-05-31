@@ -119,10 +119,10 @@ class FormantFilterWithLFO : public SampleBasedPatch {
 			
 			//convert overall gain into logarithmic
 			float desired_mid_point = 0.75f;  //without scaling, neutral volume appears to be about 75% of the knob
-			if (overall_gain < desired_mid_point) {
-				overall_gain = overall_gain / desired_mid_point * 0.5f;
+			if (overall_gain < 0.5f) {
+				overall_gain = overall_gain / 0.5 * desired_mid_point;
 			} else {
-				overall_gain = ((overall_gain - desired_mid_point) / (1.0f - desired_mid_point)) * 0.5f + 0.5f;
+				overall_gain = ((overall_gain - 0.5) / 0.5f) * (1.0-desired_mid_point) + desired_mid_point;
 			}
 			overall_gain = overall_gain * 2.0;  //make the center of the dial be zero gain.  max will be G=2 => 6dB
 			overall_gain = overall_gain * overall_gain;  //max gain will be 4 => 12 dB
@@ -221,7 +221,7 @@ class FormantFilterWithLFO : public SampleBasedPatch {
 		float q;
 		float overall_gain;
 		int model;
-		const float lfo_speed_scale = (1.0f/44100.0f)*2.0*5.0;  //fastest
+		const float lfo_speed_scale = (1.0f/44100.0f)*2.0*10.0;  //fastest
 		float lfo_increment = (1.0f/44100.0f)*0.5f;
 		float lfo_val = 0.0f;
 		float lfo_sign = 1.0; //switches between +1 and -1
