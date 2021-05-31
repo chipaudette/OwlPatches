@@ -124,7 +124,6 @@ class FormantFilterWithLFO : public SampleBasedPatch {
 			} else {
 				overall_gain = ((overall_gain - desired_mid_point) / (1.0f - desired_mid_point)) * 0.5f + 0.5f;
 			}
-			overall_gain
 			overall_gain = overall_gain * 2.0;  //make the center of the dial be zero gain.  max will be G=2 => 6dB
 			overall_gain = overall_gain * overall_gain;  //max gain will be 4 => 12 dB
 		}
