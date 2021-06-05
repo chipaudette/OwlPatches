@@ -92,12 +92,12 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			fc[1] = frac*(table_F2[vowel][ind_high]-table_F2[vowel][ind_low]) + table_F2[vowel][ind_low];
 			fc[2] = frac*(table_F3[vowel][ind_high]-table_F3[vowel][ind_low]) + table_F3[vowel][ind_low];
 			
-			//_gain[0] = frac*(table_gain_F1[ind_high]-table_gain_F1[ind_low]) + table_gain_F1[ind_low];
-			//_gain[1] = frac*(table_gain_F2[ind_high]-table_gain_F2[ind_low]) + table_gain_F2[ind_low];
-			//_gain[2] = frac*(table_gain_F3[ind_high]-table_gain_F3[ind_low]) + table_gain_F3[ind_low];
-			_gain[0] = 1.0;
-			_gain[1] = 1.0;
-			_gain[2] = 1.0;
+			_gain[0] = frac*(table_gain_F1[vowel][ind_high]-table_gain_F1[vowel][ind_low]) + table_gain_F1[vowel][ind_low];
+			_gain[1] = frac*(table_gain_F2[vowel][ind_high]-table_gain_F2[vowel][ind_low]) + table_gain_F2[vowel][ind_low];
+			_gain[2] = frac*(table_gain_F3[vowel][ind_high]-table_gain_F3[vowel][ind_low]) + table_gain_F3[vowel][ind_low];
+			//_gain[0] = 1.0;
+			//_gain[1] = 1.0;
+			//_gain[2] = 1.0;
 
 			for (int i=0; i<3; i++) { //only do two formants (two bandpass filters
 				fc[i] = fc[i] / (44100.f / 2.0f);  //normalize by the nyquist
@@ -157,7 +157,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			if (ave_pow >= trigger) {
 				if (was_above_thresh == false) {
 					//retrigger!
-					time = 0.0;
+					time_val = 0.0;
 				}
 				was_above_thresh = true;
 			} else {
@@ -165,11 +165,11 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			}
 
 			//update the time
-			time += time_increment;
+			time_val += time_increment;
 			
 			
 			//update the filter parameters
-			updateFilters(vowel, time, f, gain);
+			updateFilters(vowel, time_val, f, gain);
 			
 			
 			//apply the bandpass filters
@@ -266,9 +266,20 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			{2234., 2388., 2356.},
 			{1473., 1319., 1271.},
 			{1512., 1501., 1479.},
-			1559., 1566., 1575.},
+			{1559., 1566., 1575.},
 			{1526., 1352., 1271.}};
-		float traj_F3_1[MAX_TABLE][3];
+		float traj_F3_1[MAX_TABLE][3] = { {1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0}};
 
 	
 };
