@@ -89,17 +89,17 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			int ind_high = (int)ceil(frac);
 			frac = frac - ind_low;
 			
-				fc[0] = frac*(table_F1[vowel][ind_high]-table_F1[vowel][ind_low]) + table_F1[vowel][ind_low];
+			fc[0] = frac*(table_F1[vowel][ind_high]-table_F1[vowel][ind_low]) + table_F1[vowel][ind_low];
 			fc[1] = frac*(table_F2[vowel][ind_high]-table_F2[vowel][ind_low]) + table_F2[vowel][ind_low];
 			fc[2] = frac*(table_F3[vowel][ind_high]-table_F3[vowel][ind_low]) + table_F3[vowel][ind_low];
-			/*
+			
 			_gain[0] = frac*(table_gain_F1[vowel][ind_high]-table_gain_F1[vowel][ind_low]) + table_gain_F1[vowel][ind_low];
 			_gain[1] = frac*(table_gain_F2[vowel][ind_high]-table_gain_F2[vowel][ind_low]) + table_gain_F2[vowel][ind_low];
 			_gain[2] = frac*(table_gain_F3[vowel][ind_high]-table_gain_F3[vowel][ind_low]) + table_gain_F3[vowel][ind_low];
-			*/
-			_gain[0] = 1.0;
-			_gain[1] = 1.0;
-			_gain[2] = 1.0;
+			
+			//_gain[0] = 1.0;
+			//_gain[1] = 1.0;
+			//_gain[2] = 1.0;
 
 			for (int i=0; i<3; i++) { //only do two formants (two bandpass filters
 				fc[i] = fc[i] / (44100.f / 2.0f);  //normalize by the nyquist
@@ -110,7 +110,6 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		void prepare(void){
 			vowel = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
 			trigger = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
-			//q = getParameterValue(PARAMETER_C); //a value of 1.0 means fc = sample rate
 			float speed_frac = getParameterValue(PARAMETER_C);
 			overall_gain = getParameterValue(PARAMETER_D);
 			
@@ -119,7 +118,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 
 			//set q into the format that the algorithm needs
 			q = 0.75;
-			q = 1 - q;
+			q = 1.0f - q;
 			
 			//set the trigger (which starts as 0.0 to 1.0)
 			float range_dB = 40;
@@ -205,9 +204,9 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 					table_F1 = traj_F1_1; 
 					table_F2 = traj_F2_1; 
 					table_F3 = traj_F3_1;
-					//table_gain_F1 = table_gain_F1_1; 
-					//table_gain_F2 = table_gain_F2_1; 
-					//table_gain_F3 = table_gain_F3_1;
+					table_gain_F1 = table_gain_F1_1; 
+					table_gain_F2 = table_gain_F2_1; 
+					table_gain_F3 = table_gain_F3_1;
 					break;
 			}
 			
