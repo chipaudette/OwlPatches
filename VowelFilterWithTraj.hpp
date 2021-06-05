@@ -233,8 +233,8 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		  
 		#define MAX_TABLE 16
 		int N_bandpass, N_table, N_time;
-		float *table_F1, *table_F2, *table_F3;
-		float *table_gain_F1, *table_gain_F2, *table_gain_F3;
+		float (*table_F1)[3], (*table_F2)[3], (*table_F3)[3]; //pointer for a 2D array with the last dimension is size 3
+		float (*table_gain_F1)[3], (*table_gain_F2)[3], (*table_gain_F3)[3];
 
 
 		//https://web.nmsu.edu/~spsandov/papers/AverageFormantTrajectories.pdf
