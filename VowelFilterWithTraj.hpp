@@ -122,7 +122,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			//set the trigger (which starts as 0.0 to 1.0)
 			float range_dB = 40;
 			float trigger_dBFS = trigger * range_dB - range_dB;  //should span -range_dB to 0.0
-			trigger = powf(10.0, trigger_dBFS / 20.0f);  //same as sqrt(powf(10.0, trigger_dBFS/10.0))
+			//trigger = powf(10.0, trigger_dBFS / 20.0f);  //same as sqrt(powf(10.0, trigger_dBFS/10.0))
 			
 			//convert the speed into an lfo increment
 			if (speed_frac < 0.025) {
