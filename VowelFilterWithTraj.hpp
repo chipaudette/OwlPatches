@@ -89,9 +89,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			int ind_high = (int)ceil(frac);
 			frac = frac - ind_low;
 			
-	
-			//vowel = 1; ind_high = 1; ind_low = ind_high-1; frac = 0.0; //debugging
-			fc[0] = frac*(table_F1[vowel][ind_high]-table_F1[vowel][ind_low]) + table_F1[vowel][ind_low];
+				fc[0] = frac*(table_F1[vowel][ind_high]-table_F1[vowel][ind_low]) + table_F1[vowel][ind_low];
 			fc[1] = frac*(table_F2[vowel][ind_high]-table_F2[vowel][ind_low]) + table_F2[vowel][ind_low];
 			fc[2] = frac*(table_F3[vowel][ind_high]-table_F3[vowel][ind_low]) + table_F3[vowel][ind_low];
 			/*
@@ -155,7 +153,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			ave_ind = ave_ind + 1;  if (ave_ind >= n_ave) ave_ind = 0;
 			ave_buff[ave_ind] = cur_pow;
 			float ave_sum = 0; 
-			//for (int i=0; i<n_ave; i++) { ave_sum += ave_buff[i]; };
+			for (int i=0; i<n_ave; i++) { ave_sum += ave_buff[i]; };
 			ave_pow = ave_sum / ((float) n_ave);
 			
 			//update whether to retrigger
