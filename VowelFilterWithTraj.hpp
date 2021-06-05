@@ -89,6 +89,8 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			int ind_high = (int)ceil(frac);
 			frac = frac - ind_low;
 			
+			fc[0] = 500.0f; fc[1] = 1000.; fc[2] = 2000.0;
+			/*
 			vowel = 1; ind_high = 1; ind_low = ind_high-1; frac = 0.0; //debugging
 			fc[0] = frac*(table_F1[vowel][ind_high]-table_F1[vowel][ind_low]) + table_F1[vowel][ind_low];
 			fc[1] = frac*(table_F2[vowel][ind_high]-table_F2[vowel][ind_low]) + table_F2[vowel][ind_low];
@@ -97,9 +99,10 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			_gain[0] = frac*(table_gain_F1[vowel][ind_high]-table_gain_F1[vowel][ind_low]) + table_gain_F1[vowel][ind_low];
 			_gain[1] = frac*(table_gain_F2[vowel][ind_high]-table_gain_F2[vowel][ind_low]) + table_gain_F2[vowel][ind_low];
 			_gain[2] = frac*(table_gain_F3[vowel][ind_high]-table_gain_F3[vowel][ind_low]) + table_gain_F3[vowel][ind_low];
-			//_gain[0] = 1.0;
-			//_gain[1] = 1.0;
-			//_gain[2] = 1.0;
+			*/
+			_gain[0] = 1.0;
+			_gain[1] = 1.0;
+			_gain[2] = 1.0;
 
 			for (int i=0; i<3; i++) { //only do two formants (two bandpass filters
 				fc[i] = fc[i] / (44100.f / 2.0f);  //normalize by the nyquist
