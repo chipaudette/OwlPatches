@@ -55,7 +55,6 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 
 			//initialize states
 			overall_gain = 1.0;
-			model = -1;
 			for (int i=0; i<3; i++) {
 				low[i] = 0.0;
 				band[i]=0.0;
@@ -241,9 +240,9 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		//https://web.nmsu.edu/~spsandov/papers/AverageFormantTrajectories.pdf
 		//table 1, average vowel trajectories for adult female subjects
 		//20%, 50%, 80%
-		N_bandpass_1 = 2;
-		N_table_1 = 12;
-		N_time_1 = 3;
+		int N_bandpass_1 = 2;
+		int N_table_1 = 12;
+		int N_time_1 = 3;
 		float traj_F1_1[MAX_TABLE][3] = { {750., 794., 763.},
 			{767., 815., 792.},
 			{697., 723., 713.},
