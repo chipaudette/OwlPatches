@@ -122,7 +122,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			//set the trigger (which starts as 0.0 to 1.0)
 			float range_dB = 40;
 			float trigger_dBFS = trigger * range_dB - range_dB;  //should span -range_dB to 0.0
-			//trigger = powf(10.0, trigger_dBFS / 20.0f);  //same as sqrt(powf(10.0, trigger_dBFS/10.0))
+			trigger = powf(10.0, trigger_dBFS / 20.0f);  //same as sqrt(powf(10.0, trigger_dBFS/10.0))
 			
 			//convert the speed into an lfo increment
 			if (speed_frac < 0.025) {
@@ -150,7 +150,8 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			float cur_pow = sample*sample; //square the signal
 			ave_ind = ave_ind + 1;  if (ave_ind >= n_ave) ave_ind = 0;
 			ave_buff[ave_ind] = cur_pow;
-			float ave_sum = 0; for (int i=0; i<n_ave; i++) { ave_sum += ave_buff[i]; };
+			float ave_sum = 0; 
+			//for (int i=0; i<n_ave; i++) { ave_sum += ave_buff[i]; };
 			ave_pow = ave_sum / ((float) n_ave);
 			
 			//update whether to retrigger
