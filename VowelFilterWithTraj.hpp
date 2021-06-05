@@ -122,15 +122,15 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			//set the trigger (which starts as 0.0 to 1.0)
 			float range_dB = 40;
 			float trigger_dBFS = trigger * range_dB - range_dB;  //should span -range_dB to 0.0
-			trigger = pow10f(10.0, trigger_dBFS / 20.0f);  //same as sqrt(pow10f(10.0, trigger_dBFS/10.0))
+			trigger = powf(10.0, trigger_dBFS / 20.0f);  //same as sqrt(powf(10.0, trigger_dBFS/10.0))
 			
 			//convert the speed into an lfo increment
 			if (speed_frac < 0.025) {
 				//turn off the lfo
-				lfo_increment = 0.0;
-				lfo_val = 0.0;
+				time_increment = 0.0;
+				time_val = 0.0;
 			} else {
-				lfo_increment = lfo_speed_scale * (speed_frac*speed_frac);  //squaring the speed_frac gives better access to smaller values
+				time_increment = time_speed_scale * (speed_frac*speed_frac);  //squaring the speed_frac gives better access to smaller values
 			}
 			
 			//convert overall gain into logarithmic
@@ -219,7 +219,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		float q;
 		float overall_gain;
 		int model;
-		const float lfo_speed_scale = (1.0f/44100.0f)*2.0*10.0;  //fastest
+		const float time_speed_scale = (1.0f/44100.0f)*20.0f;  //fastest is 20 per second
 		float time_increment = (1.0f/44100.0f)*0.5f;
 		float time_val = 0.0f;
 		float vowel; 
@@ -227,6 +227,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		const int n_ave = N_AVE;
 		float ave_buff[N_AVE];  //set for 20 msec, which should be a 50 Hz cutoff.  at 44.1kHz, that's about 882 samples
 		int ave_ind = 0;
+		float ave_pow = 0.0f;
 		float trigger = 0.01;
 		float was_above_thresh = false; //state for the threshold detector
 		
