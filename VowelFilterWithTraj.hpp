@@ -69,7 +69,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		}
 		
 
-		void updateFilters(float vowel_float, float time, float *_f, float *_gain) {
+		void updateFilters(float vowel_float, float time_float, float *_f, float *_gain) {
 			float fc[3];
 			
 			//vowel_float is 0.0 to 1.0
@@ -81,10 +81,10 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			
 			//vowel_float = max(0.0f,min(1.0f, vowel_float));  //limit the value
 			int vowel_int = (int)(((N_table-1)*vowel_float)+0.5f); //get index of vowel that we want
-			time = max(0.0f, min(1.0f, time));
+			time_float = max(0.0f, min(1.0f, time_float));
 			
 			
-			float frac = time * (N_time-1);	
+			float frac = time_float * (N_time-1);	
 			int ind_low = (int)(frac);
 			int ind_high = (int)ceil(frac);
 			frac = frac - ind_low;
@@ -123,15 +123,15 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			q = 0.75; q = 1.0f - q;
 			
 			//set the trigger level (which is a power number) relative to full scale (FS = 1.0)
-			float range_dB = 40;  //here is the range that we would like to set for the knob
+			float range_dB = 40.0f;  //here is the range that we would like to set for the knob
 			float trigger_dBFS = trigger * range_dB - range_dB;  //should be negative and span -range_dB to 0.0
-			trigger = powf(10.0, trigger_dBFS / 10.0f); 
+			trigger = powf(10.0f, trigger_dBFS / 10.0f); 
 			
 			//convert the speed into an lfo increment
-			if (speed_frac < 0.025) {
+			if (speed_frac < 0.025f) {
 				//turn off the lfo
-				time_increment = 0.0;
-				time_val = 0.0;
+				time_increment = 0.0f;
+				time_val = 0.0f;
 			} else {
 				time_increment = time_speed_scale * (speed_frac*speed_frac);  //squaring the speed_frac gives better access to smaller values
 			}
@@ -139,11 +139,11 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			//convert overall gain into logarithmic
 			float desired_mid_point = 0.7f;  //without scaling, neutral volume appears to be about 75% of the knob
 			if (overall_gain < 0.5f) {
-				overall_gain = overall_gain / 0.5 * desired_mid_point;
+				overall_gain = overall_gain / 0.5f * desired_mid_point;
 			} else {
-				overall_gain = ((overall_gain - 0.5) / 0.5f) * (1.0-desired_mid_point) + desired_mid_point;
+				overall_gain = ((overall_gain - 0.5f) / 0.5f) * (1.0f-desired_mid_point) + desired_mid_point;
 			}
-			overall_gain = overall_gain * 3.0;  //make the center of the dial be zero gain.  max will be G=2 => 6dB
+			overall_gain = overall_gain * 3.0f;  //make the center of the dial be zero gain.  max will be G=2 => 6dB
 			overall_gain = overall_gain * overall_gain;  //max gain will be 4 => 12 dB
 		}
 			
@@ -154,15 +154,15 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			float cur_pow = sample*sample; //square the signal
 			ave_ind = ave_ind + 1;  if (ave_ind >= n_ave) ave_ind = 0; //where to put the new data sample
 			ave_buff[ave_ind] = cur_pow;  //save the new data sample
-			float ave_sum = 0;  //begin to compute the new average (by initializing the sum to zero)
-			for (int i=0; i<n_ave; i++) { ave_sum += ave_buff[i]; }; //sum across the whole buffer
+			float ave_sum = 0.0f;  //begin to compute the new average (by initializing the sum to zero)
+			//for (int i=0; i<n_ave; i++) { ave_sum += ave_buff[i]; }; //sum across the whole buffer
 			ave_pow = ave_sum / ((float) n_ave); //finish the calculation of the average
 			
 			//based on the average signal power, decide whether to retrigger
 			if (ave_pow >= trigger) {
 				if (was_above_thresh == false) {
 					//retrigger!
-					time_val = 0.0;
+					time_val = 0.0f;
 				}
 				was_above_thresh = true;
 			} else {
@@ -244,9 +244,9 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		//https://web.nmsu.edu/~spsandov/papers/AverageFormantTrajectories.pdf
 		//table 1, average vowel trajectories for adult female subjects
 		//20%, 50%, 80%
-		int N_bandpass_1 = 2;
-		int N_table_1 = 12;
-		int N_time_1 = 3;
+		int N_bandpass_1 = 2; //how many formants are we modeling here
+		int N_table_1 = 12; //how many vowels (rows) are in the tables below
+		int N_time_1 = 3;   //how many times (columns) are in the tables below
 		float traj_F1_1[MAX_TABLE][3] = { {750., 794., 763.},
 			{767., 815., 792.},
 			{697., 723., 713.},
