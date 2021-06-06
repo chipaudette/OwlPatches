@@ -82,28 +82,26 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			// fs = sampling frequency //(e.g. 44100Hz)
 			// q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
 			
+			//prepare for interpolation for this vowel at this moment in time
 			vowel_float = max(0.0f,min(1.0f, vowel_float));  //limit the value
 			int vowel_int = (int)(((N_table-1)*vowel_float)+0.4999f); //get index of vowel that we want
 			time_float = max(0.0f, min(1.0f, time_float));
+			float interp_frac = time_float * (float)(N_time-1);
+			int ind_low = (int)(interp_frac);
+			int ind_high = (int)ceil(interp_frac);
+			interp_frac = interp_frac - ind_low;			
 			
+
+			//interpolate to get each formant's frequency for this vowel for this moment in time			
+			fc[0] = interp_frac*(table_F1[vowel_int][ind_high]-table_F1[vowel_int][ind_low]) + table_F1[vowel_int][ind_low];
+			fc[1] = interp_frac*(table_F2[vowel_int][ind_high]-table_F2[vowel_int][ind_low]) + table_F2[vowel_int][ind_low];
+			fc[2] = interp_frac*(table_F3[vowel_int][ind_high]-table_F3[vowel_int][ind_low]) + table_F3[vowel_int][ind_low];
 			
-			float frac = time_float * (float)(N_time-1);	
-			int ind_low = (int)(frac);
-			int ind_high = (int)ceil(frac);
-			frac = frac - ind_low;
-			
-			
-			//interpolate to get cutoff frequencies
-			
-			fc[0] = frac*(table_F1[vowel_int][ind_high]-table_F1[vowel_int][ind_low]) + table_F1[vowel_int][ind_low];
-			fc[1] = frac*(table_F2[vowel_int][ind_high]-table_F2[vowel_int][ind_low]) + table_F2[vowel_int][ind_low];
-			fc[2] = frac*(table_F3[vowel_int][ind_high]-table_F3[vowel_int][ind_low]) + table_F3[vowel_int][ind_low];
-			
-			
+			//interpolate to get each formant's gain for this vowel for this moment in time
 			/*
-			_gain[0] = frac*(table_gain_F1[vowel][ind_high]-table_gain_F1[vowel][ind_low]) + table_gain_F1[vowel][ind_low];
-			_gain[1] = frac*(table_gain_F2[vowel][ind_high]-table_gain_F2[vowel][ind_low]) + table_gain_F2[vowel][ind_low];
-			_gain[2] = frac*(table_gain_F3[vowel][ind_high]-table_gain_F3[vowel][ind_low]) + table_gain_F3[vowel][ind_low];
+			_gain[0] = interp_frac*(table_gain_F1[vowel][ind_high]-table_gain_F1[vowel][ind_low]) + table_gain_F1[vowel][ind_low];
+			_gain[1] = interp_frac*(table_gain_F2[vowel][ind_high]-table_gain_F2[vowel][ind_low]) + table_gain_F2[vowel][ind_low];
+			_gain[2] = interp_frac*(table_gain_F3[vowel][ind_high]-table_gain_F3[vowel][ind_low]) + table_gain_F3[vowel][ind_low];
 			*/
 			_gain[0] = 1.0; //full gain, no attenuation
 			_gain[1] = 1.0; //full gain, no attenuation
@@ -165,9 +163,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			ave_sum = 0.999f*ave_sum - ave_buff[ave_ind] + cur_pow;  //update the sum by removing the oldest value and adding the newest
 			ave_buff[ave_ind] = cur_pow;  //save the new data sample
 			ave_pow = ave_sum / ((float) n_ave); //finish the calculation of the average
-			ave_pow = max(0.0001f,min(1.0f,ave_pow));
-			
-			//ave_pow = 0.001f + 0.01f*ave_pow;
+			ave_pow = max(0.00001f,min(1.0f,ave_pow));
 			
 			//based on the average signal power, decide whether to retrigger
 			if (ave_pow >= trigger) {
