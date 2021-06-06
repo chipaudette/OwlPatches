@@ -155,14 +155,13 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			//sample should be -1.0 to +1.0
 			
 			//update running average estimate of signal amplitude
-			/*
 			float cur_pow = sample*sample; //square the signal
 			ave_ind = ave_ind + 1;  if (ave_ind >= n_ave) ave_ind = 0; //where to put the new data sample
 			ave_buff[ave_ind] = cur_pow;  //save the new data sample
 			float ave_sum = 0.0f;  //begin to compute the new average (by initializing the sum to zero)
 			//for (int i=0; i<n_ave; i++) { ave_sum += ave_buff[i]; }; //sum across the whole buffer
 			ave_pow = ave_sum / ((float) n_ave); //finish the calculation of the average
-			*/
+			
 			ave_pow = 0.01;
 			
 			//based on the average signal power, decide whether to retrigger
