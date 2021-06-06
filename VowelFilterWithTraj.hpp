@@ -89,7 +89,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			float interp_frac = time_float * (float)(N_time-1);
 			int ind_low = (int)(interp_frac);
 			int ind_high = (int)ceil(interp_frac);
-			interp_frac = interp_frac - ind_low;			
+			interp_frac = interp_frac - (float)ind_low;			
 			
 
 			//interpolate to get each formant's frequency for this vowel for this moment in time			
@@ -139,7 +139,18 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 				time_increment = 0.0f;
 				time_val = 0.0f;
 			} else {
-				time_increment = time_speed_scale * (speed_frac*speed_frac);  //squaring the speed_frac gives better access to smaller values
+				
+				//speed_frac is 0.0 to 1.0, linear.  Square it to get access to slower vowels.
+				speed_frac = speed_frac*speec_frac;
+				
+				//compute time_increment, which is the amount added to the clock for evrey sample.
+				//a smaller number makes the vowel evolve slowly.  A large number makes it evolve fast.
+				const float shortest_time_sec = 0.2;
+				const float longest_time_sec = 2.0;
+				const float target_time_sec = speed_frac*(longest_time_sec - shortest_time_sec) + shortest_time_sec;
+				const float sample_rate_Hz = 44100.;
+				const float time_period_samples = target_time_sec * sample_rate_Hz;
+				time_increment = 1.0 / time_period_samples;
 			}
 			
 			//convert overall gain into logarithmic
@@ -170,10 +181,12 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 				if (was_above_thresh == false) {
 					//retrigger!
 					time_val = 0.0f;
+				} else {
+					//do not reset.  we only want to reset on upward going transitions
 				}
-				was_above_thresh = true;
+				was_above_thresh = true; //we are above the threshold, so note that
 			} else {
-				was_above_thresh = false;
+				was_above_thresh = false; //we are below the threshold, so note that
 			}
 
 			//update the time
@@ -241,7 +254,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		float q;
 		float overall_gain;
 		int model;
-		const float time_speed_scale = (1.0f/44100.0f)*20.0f;  //fastest is 20 per second
+		//const float time_speed_scale = (1.0f/44100.0f)*20.0f;  //fastest is 20 per second
 		float time_increment = (1.0f/44100.0f); //this will get overwritten in the methods
 		float time_val = 0.0f; //time since the last trigger
 		#define N_AVE (882)
