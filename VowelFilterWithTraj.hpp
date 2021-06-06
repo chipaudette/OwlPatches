@@ -320,7 +320,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		//table 5, average vowel trajectories for diphthongs (regular vowels) for adult female subjects
 		//20%, 50%, 80%
 		int N_bandpass_2 = 2; //how many formants are we modeling here
-		int N_table_2 = 8; //how many vowels (rows) are in the tables below
+		int N_table_2 = 9; //how many vowels (rows) are in the tables below
 		int N_time_2 = 3;   //how many times (columns) are in the tables below
 		float traj_F1_2[MAX_TABLE][3] = { {819., 819., 696.},
 			{812., 839., 763.},
@@ -329,7 +329,8 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			{472., 469., 462.},
 			{548., 551., 539.},
 			{789., 727., 665.},
-			{649., 659., 623.}};
+			{649., 659., 623.},
+			{503., 483., 517.}}; //add "m" from Table 17
 		float traj_F2_2[MAX_TABLE][3] = { {1469., 1667., 1955.},
 			{1720., 1548., 1354.},
 			{1581., 1562., 1599.},
@@ -337,8 +338,10 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			{2054., 1957., 1856.},
 			{1929., 1945., 1935.},
 			{2030., 1991., 1942.},
-			{1125., 1299., 1726,}};
+			{1125., 1299., 1726,},
+			{1490., 1502., 1567}};
 		float traj_F3_2[MAX_TABLE][3] = { {1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
 			{1.0, 1.0, 1.0},
 			{1.0, 1.0, 1.0},
 			{1.0, 1.0, 1.0},
