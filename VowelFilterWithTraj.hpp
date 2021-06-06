@@ -79,9 +79,9 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			// fs = sampling frequency //(e.g. 44100Hz)
 			// q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
 			
-			vowel_float = max(0.0f,min(1.0f, vowel_float));  //limit the value
+			//vowel_float = max(0.0f,min(1.0f, vowel_float));  //limit the value
+			int vowel_int = (int)(((N_table-1)*vowel_float)+0.5f); //get index of vowel that we want
 			time = max(0.0f, min(1.0f, time));
-			int vowel = (int)((N_table*vowel_float)+0.5f); //get index of vowel that we want
 			
 			
 			float frac = time * (N_time-1);	
@@ -89,9 +89,9 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			int ind_high = (int)ceil(frac);
 			frac = frac - ind_low;
 			
-			fc[0] = frac*(table_F1[vowel][ind_high]-table_F1[vowel][ind_low]) + table_F1[vowel][ind_low];
-			fc[1] = frac*(table_F2[vowel][ind_high]-table_F2[vowel][ind_low]) + table_F2[vowel][ind_low];
-			fc[2] = frac*(table_F3[vowel][ind_high]-table_F3[vowel][ind_low]) + table_F3[vowel][ind_low];
+			fc[0] = frac*(table_F1[vowel_int][ind_high]-table_F1[vowel_int][ind_low]) + table_F1[vowel_int][ind_low];
+			fc[1] = frac*(table_F2[vowel_int][ind_high]-table_F2[vowel_int][ind_low]) + table_F2[vowel_int][ind_low];
+			fc[2] = frac*(table_F3[vowel_int][ind_high]-table_F3[vowel_int][ind_low]) + table_F3[vowel_int][ind_low];
 			/*
 			_gain[0] = frac*(table_gain_F1[vowel][ind_high]-table_gain_F1[vowel][ind_low]) + table_gain_F1[vowel][ind_low];
 			_gain[1] = frac*(table_gain_F2[vowel][ind_high]-table_gain_F2[vowel][ind_low]) + table_gain_F2[vowel][ind_low];
@@ -108,22 +108,21 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		}
 		
 		void prepare(void){
-			vowel = getParameterValue(PARAMETER_A); //a value of 1.0 means fc = sample rate
-			trigger = getParameterValue(PARAMETER_B); //a value of 1.0 means fc = sample rate
-			float speed_frac = getParameterValue(PARAMETER_C);
-			overall_gain = getParameterValue(PARAMETER_D);
+			vowel = getParameterValue(PARAMETER_A);   			//should be a value of 0.0 to 1.0
+			trigger = getParameterValue(PARAMETER_B); 			//should be a value of 0.0 to 1.0
+			float speed_frac = getParameterValue(PARAMETER_C);	//should be a value of 0.0 to 1.0
+			overall_gain = getParameterValue(PARAMETER_D);		//should be a value of 0.0 to 1.0
 			
 			//choose the formant model to use
 			//chooseModel(3);  //this code has four models to choose from?
 
-			//set q into the format that the algorithm needs
-			q = 0.75;
-			q = 1.0f - q;
+			//set q and get it into the format that the algorithm needs
+			q = 0.75; q = 1.0f - q;
 			
-			//set the trigger (which starts as 0.0 to 1.0)
-			float range_dB = 40;
-			float trigger_dBFS = trigger * range_dB - range_dB;  //should span -range_dB to 0.0
-			trigger = powf(10.0, trigger_dBFS / 20.0f);  //same as sqrt(powf(10.0, trigger_dBFS/10.0))
+			//set the trigger level (which is a power number) relative to full scale (FS = 1.0)
+			float range_dB = 40;  //here is the range that we would like to set for the knob
+			float trigger_dBFS = trigger * range_dB - range_dB;  //should be negative and span -range_dB to 0.0
+			trigger = powf(10.0, trigger_dBFS / 10.0f); 
 			
 			//convert the speed into an lfo increment
 			if (speed_frac < 0.025) {
@@ -146,16 +145,17 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		}
 			
 		float processSample(float sample){
+			//sample should be -1.0 to +1.0
 			
 			//update running average estimate of signal amplitude
 			float cur_pow = sample*sample; //square the signal
-			ave_ind = ave_ind + 1;  if (ave_ind >= n_ave) ave_ind = 0;
-			ave_buff[ave_ind] = cur_pow;
-			float ave_sum = 0; 
-			for (int i=0; i<n_ave; i++) { ave_sum += ave_buff[i]; };
-			ave_pow = ave_sum / ((float) n_ave);
+			ave_ind = ave_ind + 1;  if (ave_ind >= n_ave) ave_ind = 0; //where to put the new data sample
+			ave_buff[ave_ind] = cur_pow;  //save the new data sample
+			float ave_sum = 0;  //begin to compute the new average (by initializing the sum to zero)
+			for (int i=0; i<n_ave; i++) { ave_sum += ave_buff[i]; }; //sum across the whole buffer
+			ave_pow = ave_sum / ((float) n_ave); //finish the calculation of the average
 			
-			//update whether to retrigger
+			//based on the average signal power, decide whether to retrigger
 			if (ave_pow >= trigger) {
 				if (was_above_thresh == false) {
 					//retrigger!
@@ -169,11 +169,9 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			//update the time
 			time_val += time_increment;
 			
-			
 			//update the filter parameters
 			updateFilters(vowel, time_val, f, gain);
-			
-			
+						
 			//apply the bandpass filters
 			float out_val = 0.0; //initialize our output variable
 			for (int i=0; i<N_bandpass; i++) {
@@ -321,38 +319,3 @@ notch = high + low;
 //--endloop
 */
 
-/* Formant Tables
-
-https://en.wikipedia.org/wiki/Formant
-
-Vowel
-(IPA)	Formant F1
-(Hz)	Formant F2
-(Hz)	Difference
-F1 – F2
-(Hz)
-IPA	F1	F2		Diff
-i	240	2400	2160
-y	235	2100	1865 //don't use
-e	390	2300	1910 
-ø	370	1900	1530 //don't use
-ɛ	610	1900	1290
-œ	585	1710	1125  //don't use
-a	850	1610	760
-ɶ	820	1530	710
-ɑ	750	940		190
-ɒ	700	760		60
-ʌ	600	1170	570   //don't use
-ɔ	500	700		200
-ɤ	460	1310	850  //don't use
-o	360	640		280
-ɯ	300	1390	1090  //don't use
-u	250	595		345
-
-https://home.cc.umanitoba.ca/~krussll/phonetics/acoustic/formants.html
-Canadian english vowels
-Vowel	[i]	[ɪ]	[e]	[ɛ]	[æ]	[ɑ]	[ɔ]	[o]	[ʊ]	[u]	[ʌ]
-F1	280	370	405	600	860	830	560	430	400	330	680
-F2	2230	2090	2080	1930	1550	1170	820	980	1100	1260	1310
-
-*/
