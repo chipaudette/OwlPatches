@@ -62,7 +62,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 				f[i]= 0.1*((float)i);
 				gain[i]=0.0;  //init to no gain (fully attenuated)
 			}
-			for (int i=; i<n_ave; i++) {
+			for (int i=0; i<n_ave; i++) {
 				ave_buff[i] = 0.0f;
 			}
 			
