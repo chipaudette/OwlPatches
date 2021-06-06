@@ -167,7 +167,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			ave_pow = ave_sum / ((float) n_ave); //finish the calculation of the average
 			ave_pow = max(0.0001f,min(1.0f,ave_pow));
 			
-			ave_pow = 0.001f + 0.01f*ave_pow;
+			//ave_pow = 0.001f + 0.01f*ave_pow;
 			
 			//based on the average signal power, decide whether to retrigger
 			if (ave_pow >= trigger) {
