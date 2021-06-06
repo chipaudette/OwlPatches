@@ -141,7 +141,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			} else {
 				
 				//speed_frac is 0.0 to 1.0, linear.  Square it to get access to slower vowels.
-				speed_frac = speed_frac*speec_frac;
+				speed_frac = speed_frac*speed_frac;
 				
 				//compute time_increment, which is the amount added to the clock for evrey sample.
 				//a smaller number makes the vowel evolve slowly.  A large number makes it evolve fast.
