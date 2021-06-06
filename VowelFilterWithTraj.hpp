@@ -59,8 +59,8 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 				low[i] = 0.0;
 				band[i]=0.0;
 				
-				f[i]=1000.0;
-				gain[i]=0.0;
+				f[i]=sinf(M_PI * ((float)(i*1000)); //init to 1000Hz, 2000Hz, 3000Hz
+				gain[i]=0.0;  //init to no gain (fully attenuated)
 			}
 			
 			//choose baseline formant model
@@ -70,44 +70,48 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		
 
 		void updateFilters(float vowel_float, float time_float, float *_f, float *_gain) {
-			float fc[3];
+			float fc[3] = { 300., 1000., 3000.}; //dummy initial values
 			
 			//vowel_float is 0.0 to 1.0
-			//time is 0.0 to 1.0
+			//time_float is 0.0 to 1.0
 			
 			// fc = cutoff freq in Hz 
 			// fs = sampling frequency //(e.g. 44100Hz)
 			// q = resonance/bandwidth [0 < q <= 1]  most res: q=1, less: q=0
 			
-			//vowel_float = max(0.0f,min(1.0f, vowel_float));  //limit the value
-			int vowel_int = (int)(((N_table-1)*vowel_float)+0.5f); //get index of vowel that we want
+			vowel_float = max(0.0f,min(1.0f, vowel_float));  //limit the value
+			int vowel_int = (int)(((N_table-1)*vowel_float)+0.4999f); //get index of vowel that we want
 			time_float = max(0.0f, min(1.0f, time_float));
 			
 			
-			float frac = time_float * (N_time-1);	
+			float frac = time_float * (float)(N_time-1);	
 			int ind_low = (int)(frac);
 			int ind_high = (int)ceil(frac);
 			frac = frac - ind_low;
 			
-			fc[0] = 300.0; fc[1] = 1500.; fc[2] = 3000.0;
+			
 			/*
 			fc[0] = frac*(table_F1[vowel_int][ind_high]-table_F1[vowel_int][ind_low]) + table_F1[vowel_int][ind_low];
 			fc[1] = frac*(table_F2[vowel_int][ind_high]-table_F2[vowel_int][ind_low]) + table_F2[vowel_int][ind_low];
 			fc[2] = frac*(table_F3[vowel_int][ind_high]-table_F3[vowel_int][ind_low]) + table_F3[vowel_int][ind_low];
 			*/
+			
 			/*
 			_gain[0] = frac*(table_gain_F1[vowel][ind_high]-table_gain_F1[vowel][ind_low]) + table_gain_F1[vowel][ind_low];
 			_gain[1] = frac*(table_gain_F2[vowel][ind_high]-table_gain_F2[vowel][ind_low]) + table_gain_F2[vowel][ind_low];
 			_gain[2] = frac*(table_gain_F3[vowel][ind_high]-table_gain_F3[vowel][ind_low]) + table_gain_F3[vowel][ind_low];
 			*/
-			_gain[0] = 1.0;
-			_gain[1] = 1.0;
-			_gain[2] = 1.0;
+			_gain[0] = 1.0; //full gain, no attenuation
+			_gain[1] = 1.0; //full gain, no attenuation
+			_gain[2] = 1.0; //full gain, no attenuation
+
+			/*
 
 			for (int i=0; i<3; i++) { //only do two formants (two bandpass filters
 				fc[i] = fc[i] / (44100.f / 2.0f);  //normalize by the nyquist
 				_f[i] = sinf(M_PI * fc[i]);
 			}
+			*/
 		}
 		
 		void prepare(void){
@@ -151,12 +155,15 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			//sample should be -1.0 to +1.0
 			
 			//update running average estimate of signal amplitude
+			/*
 			float cur_pow = sample*sample; //square the signal
 			ave_ind = ave_ind + 1;  if (ave_ind >= n_ave) ave_ind = 0; //where to put the new data sample
 			ave_buff[ave_ind] = cur_pow;  //save the new data sample
 			float ave_sum = 0.0f;  //begin to compute the new average (by initializing the sum to zero)
 			//for (int i=0; i<n_ave; i++) { ave_sum += ave_buff[i]; }; //sum across the whole buffer
 			ave_pow = ave_sum / ((float) n_ave); //finish the calculation of the average
+			*/
+			ave_pow = 0.01;
 			
 			//based on the average signal power, decide whether to retrigger
 			if (ave_pow >= trigger) {
@@ -219,13 +226,13 @@ class VowelFilterWithTraj : public SampleBasedPatch {
   private:
 		float low[3], band[3];
 		float f[3], gain[3];
+		float vowel;
 		float q;
 		float overall_gain;
 		int model;
 		const float time_speed_scale = (1.0f/44100.0f)*20.0f;  //fastest is 20 per second
-		float time_increment = (1.0f/44100.0f)*0.5f;
-		float time_val = 0.0f;
-		float vowel; 
+		float time_increment = (1.0f/44100.0f); //this will get overwritten in the methods
+		float time_val = 0.0f; //time since the last trigger
 		#define N_AVE (882)
 		const int n_ave = N_AVE;
 		float ave_buff[N_AVE];  //set for 20 msec, which should be a 50 Hz cutoff.  at 44.1kHz, that's about 882 samples
