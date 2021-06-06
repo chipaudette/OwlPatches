@@ -257,7 +257,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		//const float time_speed_scale = (1.0f/44100.0f)*20.0f;  //fastest is 20 per second
 		float time_increment = (1.0f/44100.0f); //this will get overwritten in the methods
 		float time_val = 0.0f; //time since the last trigger
-		#define N_AVE (882)
+		#define N_AVE (882*2)
 		const int n_ave = N_AVE;
 		float ave_buff[N_AVE];  //set for 20 msec, which should be a 50 Hz cutoff.  at 44.1kHz, that's about 882 samples
 		int ave_ind = 0;
