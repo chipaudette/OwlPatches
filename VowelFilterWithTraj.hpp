@@ -59,7 +59,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 				low[i] = 0.0;
 				band[i]=0.0;
 				
-				f[i]=sinf(M_PI * ((float)(i*1000)); //init to 1000Hz, 2000Hz, 3000Hz
+				f[i]= 0.1*((float)i);
 				gain[i]=0.0;  //init to no gain (fully attenuated)
 			}
 			
