@@ -134,10 +134,10 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			trigger = powf(10.0f, trigger_dBFS / 10.0f); 
 			
 			//convert the speed into an lfo increment
-			if (speed_frac < 0.025f) {
-				//turn off the lfo
+			if (speed_frac > (1.0f-0.025f)) {
+				//turn off the changing vowel...just hold it steady
 				time_increment = 0.0f;
-				time_val = 0.0f;
+				time_val = 0.5f; //hold it at the midpoint of the vowel
 			} else {
 				
 				//speed_frac is 0.0 to 1.0, linear.  Square it to get access to slower vowels.
