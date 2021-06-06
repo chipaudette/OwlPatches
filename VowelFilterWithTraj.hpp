@@ -171,7 +171,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			float cur_pow = sample*sample; //square the signal to get power
 			ave_ind = ave_ind + 1;  if (ave_ind >= n_ave) ave_ind = 0; //choose where to put the new data sample...this sample is the oldest in the buffer
 			ave_ind = max(0,min(n_ave-1,ave_ind)); //make sure that we don't go out of bounds
-			ave_sum = 0.999f*ave_sum - ave_buff[ave_ind] + cur_pow;  //update the sum by removing the oldest value and adding the newest
+			ave_sum = 0.9999f*ave_sum - ave_buff[ave_ind] + cur_pow;  //update the sum by removing the oldest value and adding the newest
 			ave_buff[ave_ind] = cur_pow;  //save the new data sample over the oldest sample
 			ave_pow = ave_sum / ((float) n_ave); //finish the calculation of the average
 			ave_pow = max(0.000001f,min(1.0f,ave_pow)); //limit the value of the average power to reasonable values
