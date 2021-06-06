@@ -105,13 +105,13 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			_gain[1] = 1.0; //full gain, no attenuation
 			_gain[2] = 1.0; //full gain, no attenuation
 
-			/*
+			
 
 			for (int i=0; i<3; i++) { //only do two formants (two bandpass filters
 				fc[i] = fc[i] / (44100.f / 2.0f);  //normalize by the nyquist
 				_f[i] = sinf(M_PI * fc[i]);
 			}
-			*/
+			
 		}
 		
 		void prepare(void){
