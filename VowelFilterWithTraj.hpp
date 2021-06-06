@@ -89,7 +89,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			int ind_high = (int)ceil(frac);
 			frac = frac - ind_low;
 			
-			fc[0] = 300.0; fc[1] = 1500.; fc[3] = 3000.0;
+			fc[0] = 300.0; fc[1] = 1500.; fc[2] = 3000.0;
 			/*
 			fc[0] = frac*(table_F1[vowel_int][ind_high]-table_F1[vowel_int][ind_low]) + table_F1[vowel_int][ind_low];
 			fc[1] = frac*(table_F2[vowel_int][ind_high]-table_F2[vowel_int][ind_low]) + table_F2[vowel_int][ind_low];
