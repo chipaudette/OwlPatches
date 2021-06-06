@@ -93,11 +93,11 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			frac = frac - ind_low;
 			
 			
-			/*
+			//interpolate to get cutoff frequencies
 			fc[0] = frac*(table_F1[vowel_int][ind_high]-table_F1[vowel_int][ind_low]) + table_F1[vowel_int][ind_low];
 			fc[1] = frac*(table_F2[vowel_int][ind_high]-table_F2[vowel_int][ind_low]) + table_F2[vowel_int][ind_low];
 			fc[2] = frac*(table_F3[vowel_int][ind_high]-table_F3[vowel_int][ind_low]) + table_F3[vowel_int][ind_low];
-			*/
+			
 			
 			/*
 			_gain[0] = frac*(table_gain_F1[vowel][ind_high]-table_gain_F1[vowel][ind_low]) + table_gain_F1[vowel][ind_low];
@@ -155,10 +155,9 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 		}
 			
 		float processSample(float sample){
-			//sample should be -1.0 to +1.0
+			//sample value should be -1.0 to +1.0
 			
 			//update running average estimate of signal amplitude
-			
 			float cur_pow = sample*sample; //square the signal
 			ave_ind = ave_ind + 1;  if (ave_ind >= n_ave) ave_ind = 0; //where to put the new data sample
 			ave_buff[ave_ind] = cur_pow;  //save the new data sample
@@ -167,7 +166,6 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			ave_pow = ave_sum / ((float) n_ave); //finish the calculation of the average
 			ave_pow = max(0.0001f,min(1.0f,ave_pow));
 			
-			//ave_pow = 0.01; //fix the value for debugging
 			
 			//based on the average signal power, decide whether to retrigger
 			if (ave_pow >= trigger) {
