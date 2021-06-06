@@ -129,7 +129,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			q = 0.75; q = 1.0f - q;
 			
 			//set the trigger level (which is a power number) relative to full scale (FS = 1.0)
-			float range_dB = 40.0f;  //here is the range that we would like to set for the knob
+			float range_dB = 50.0f;  //here is the range that we would like to set for the knob
 			float trigger_dBFS = trigger * range_dB - range_dB;  //should be negative and span -range_dB to 0.0
 			trigger = powf(10.0f, trigger_dBFS / 10.0f); 
 			
@@ -157,15 +157,15 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			//sample value should be -1.0 to +1.0
 			
 			//update running average estimate of signal amplitude
-			float cur_pow = sample*sample; //square the signal
-			ave_ind = ave_ind + 1;  if (ave_ind >= n_ave) ave_ind = 0; //where to put the new data sample
-			ave_ind = max(0,min(n_ave-1,ave_ind));
+			float cur_pow = sample*sample; //square the signal to get power
+			ave_ind = ave_ind + 1;  if (ave_ind >= n_ave) ave_ind = 0; //choose where to put the new data sample...this sample is the oldest in the buffer
+			ave_ind = max(0,min(n_ave-1,ave_ind)); //make sure that we don't go out of bounds
 			ave_sum = 0.999f*ave_sum - ave_buff[ave_ind] + cur_pow;  //update the sum by removing the oldest value and adding the newest
-			ave_buff[ave_ind] = cur_pow;  //save the new data sample
+			ave_buff[ave_ind] = cur_pow;  //save the new data sample over the oldest sample
 			ave_pow = ave_sum / ((float) n_ave); //finish the calculation of the average
-			ave_pow = max(0.00001f,min(1.0f,ave_pow));
+			ave_pow = max(0.000001f,min(1.0f,ave_pow)); //limit the value of the average power to reasonable values
 			
-			//based on the average signal power, decide whether to retrigger
+			//based on the average signal power and retrigger threshold, decide whether to retrigger
 			if (ave_pow >= trigger) {
 				if (was_above_thresh == false) {
 					//retrigger!
@@ -216,6 +216,17 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 					//table_gain_F2 = table_gain_F2_1; 
 					//table_gain_F3 = table_gain_F3_1;
 					break;
+				case 2:
+					N_bandpass = N_bandpass_2;
+					N_table = N_table_2;
+					N_time = N_time_2;
+					table_F1 = traj_F1_2; 
+					table_F2 = traj_F2_2; 
+					table_F3 = traj_F3_2;
+					//table_gain_F1 = table_gain_F1_1; 
+					//table_gain_F2 = table_gain_F2_1; 
+					//table_gain_F3 = table_gain_F3_1;
+					break;
 			}
 			
 			return model;
@@ -250,7 +261,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 
 
 		//https://web.nmsu.edu/~spsandov/papers/AverageFormantTrajectories.pdf
-		//table 1, average vowel trajectories for adult female subjects
+		//table 2, average vowel trajectories for monophthongs (regular vowels) for adult female subjects
 		//20%, 50%, 80%
 		int N_bandpass_1 = 2; //how many formants are we modeling here
 		int N_table_1 = 12; //how many vowels (rows) are in the tables below
@@ -291,6 +302,42 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			{1.0, 1.0, 1.0},
 			{1.0, 1.0, 1.0},
 			{1.0, 1.0, 1.0}};
+
+		//https://web.nmsu.edu/~spsandov/papers/AverageFormantTrajectories.pdf
+		//table 5, average vowel trajectories for diphthongs (regular vowels) for adult female subjects
+		//20%, 50%, 80%
+		int N_bandpass_2 = 2; //how many formants are we modeling here
+		int N_table_2 = 8; //how many vowels (rows) are in the tables below
+		int N_time_2 = 3;   //how many times (columns) are in the tables below
+		float traj_F1_2[MAX_TABLE][3] = { {819., 819., 696.},
+			{812., 839., 763.},
+			{591., 596., 583.},
+			{571., 571., 564.},
+			{472., 469., 462.},
+			{548., 551., 539.},
+			{789., 727., 665.},
+			{649., 659., 623.}};
+		float traj_F2_2[MAX_TABLE][3] = { {1469., 1667., 1955.},
+			{1720., 1548., 1354.},
+			{1581., 1562., 1599.},
+			{1605., 1570., 1590.},
+			{2054., 1957., 1856.},
+			{1929., 1945., 1935.},
+			{2030., 1991., 1942.},
+			{1125., 1299., 1726,}};
+		float traj_F3_2[MAX_TABLE][3] = { {1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0}};
+
 
 	
 };
