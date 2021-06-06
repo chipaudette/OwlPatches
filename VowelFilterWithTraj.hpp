@@ -67,7 +67,7 @@ class VowelFilterWithTraj : public SampleBasedPatch {
 			}
 			
 			//choose baseline formant model
-			chooseModel(1);  //this code has four models to choose from?
+			chooseModel(2);  //this code has four models to choose from?
 
 		}
 		
